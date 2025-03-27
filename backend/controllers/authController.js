@@ -43,10 +43,6 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     // Create user based on type
     let user;
     if (userType === 'student') {
@@ -72,7 +68,7 @@ exports.register = async (req, res) => {
       user = new Student({
         name,
         email,
-        password: hashedPassword,
+        password, // Let the pre-save middleware handle hashing
         phone,
         leetcodeProfileUrl,
         codechefProfileUrl,
@@ -89,7 +85,7 @@ exports.register = async (req, res) => {
       user = new Teacher({
         name,
         email,
-        password: hashedPassword,
+        password, // Let the pre-save middleware handle hashing
         phone
       });
     }
@@ -150,7 +146,14 @@ exports.login = async (req, res) => {
 
     // Find user
     const UserModel = userType === 'student' ? Student : Teacher;
+    console.log('Looking for user in model:', userType === 'student' ? 'Student' : 'Teacher');
+    
     const user = await UserModel.findOne({ email }).select('+password');
+    console.log('User found:', user ? {
+      id: user._id,
+      email: user.email,
+      hasPassword: !!user.password
+    } : null);
     
     if (!user) {
       console.log('User not found:', email);
@@ -160,27 +163,41 @@ exports.login = async (req, res) => {
       });
     }
 
-    console.log('User found:', { id: user._id, email: user.email });
-
     // Check password
-    const isMatch = await user.matchPassword(password);
-    console.log('Password match:', isMatch);
-    
-    if (!isMatch) {
-      return res.status(401).json({ 
+    console.log('Checking password...');
+    try {
+      console.log('Attempting password comparison...');
+      const isMatch = await user.matchPassword(password);
+      console.log('Password match result:', isMatch);
+      
+      if (!isMatch) {
+        console.log('Password mismatch for user:', email);
+        return res.status(401).json({ 
+          success: false,
+          message: 'Invalid credentials' 
+        });
+      }
+    } catch (passwordError) {
+      console.error('Password comparison error:', passwordError);
+      return res.status(500).json({
         success: false,
-        message: 'Invalid credentials' 
+        message: 'Error during password verification'
       });
     }
 
     // Create JWT token
+    console.log('Generating token for user:', { id: user._id, userType });
     const token = jwt.sign(
       { userId: user._id, userType },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
+    console.log('Token generated successfully');
 
-    console.log('Login successful:', { userId: user._id, userType });
+    // Remove password from response
+    user.password = undefined;
+
+    console.log('Login successful for user:', { id: user._id, email: user.email, userType });
 
     res.json({
       success: true,
