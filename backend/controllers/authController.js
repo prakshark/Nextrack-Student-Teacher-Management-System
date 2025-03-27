@@ -128,9 +128,11 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password, userType } = req.body;
+    console.log('Login attempt:', { email, userType });
 
     // Validate required fields
     if (!email || !password || !userType) {
+      console.log('Missing required fields:', { email, password, userType });
       return res.status(400).json({ 
         success: false,
         message: 'Please provide all required fields' 
@@ -139,6 +141,7 @@ exports.login = async (req, res) => {
 
     // Validate user type
     if (!['student', 'teacher'].includes(userType)) {
+      console.log('Invalid user type:', userType);
       return res.status(400).json({ 
         success: false,
         message: 'Invalid user type' 
@@ -150,14 +153,19 @@ exports.login = async (req, res) => {
     const user = await UserModel.findOne({ email }).select('+password');
     
     if (!user) {
+      console.log('User not found:', email);
       return res.status(401).json({ 
         success: false,
         message: 'Invalid credentials' 
       });
     }
 
+    console.log('User found:', { id: user._id, email: user.email });
+
     // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await user.matchPassword(password);
+    console.log('Password match:', isMatch);
+    
     if (!isMatch) {
       return res.status(401).json({ 
         success: false,
@@ -171,6 +179,8 @@ exports.login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
+
+    console.log('Login successful:', { userId: user._id, userType });
 
     res.json({
       success: true,
@@ -230,6 +240,52 @@ exports.verifyToken = async (req, res) => {
       success: false,
       message: 'Token is not valid',
       error: error.message 
+    });
+  }
+};
+
+// Temporary debug route
+exports.debugUser = async (req, res) => {
+  try {
+    const { email } = req.query;
+    console.log('Debugging user:', email);
+
+    // Check in both collections
+    const student = await Student.findOne({ email }).select('+password');
+    const teacher = await Teacher.findOne({ email }).select('+password');
+
+    console.log('Student found:', student ? {
+      id: student._id,
+      email: student.email,
+      hasPassword: !!student.password
+    } : null);
+    console.log('Teacher found:', teacher ? {
+      id: teacher._id,
+      email: teacher.email,
+      hasPassword: !!teacher.password
+    } : null);
+
+    res.json({
+      success: true,
+      data: {
+        student: student ? {
+          id: student._id,
+          email: student.email,
+          hasPassword: !!student.password
+        } : null,
+        teacher: teacher ? {
+          id: teacher._id,
+          email: teacher.email,
+          hasPassword: !!teacher.password
+        } : null
+      }
+    });
+  } catch (error) {
+    console.error('Debug error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during debug',
+      error: error.message
     });
   }
 }; 

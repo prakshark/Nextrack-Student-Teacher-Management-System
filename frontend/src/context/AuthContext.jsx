@@ -31,17 +31,20 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, userType) => {
     try {
+      console.log('Attempting login with:', { email, password, userType });
       const response = await axios.post('http://localhost:5000/api/auth/login', {
         email,
         password,
         userType
       });
+      console.log('Login response:', response.data);
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       setUser(user);
-      return response.data;
+      return user;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred during login' };
+      console.error('Login error:', error.response?.data || error.message);
+      throw error;
     }
   };
 

@@ -1,29 +1,28 @@
 import { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Container,
   Box,
   Typography,
   TextField,
   Button,
+  Alert,
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
-  Alert,
-  Link
+  MenuItem
 } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     userType: 'student'
   });
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -35,15 +34,17 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Submitting login form with:', formData);
       await login(formData.email, formData.password, formData.userType);
       navigate('/dashboard');
-    } catch (err) {
-      setError(err.message || 'An error occurred during login');
+    } catch (error) {
+      console.error('Login form error:', error);
+      setError(error.response?.data?.message || 'Invalid email or password');
     }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container maxWidth="sm">
       <Box
         sx={{
           marginTop: 8,
@@ -61,18 +62,6 @@ const Login = () => {
           </Alert>
         )}
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>User Type</InputLabel>
-            <Select
-              name="userType"
-              value={formData.userType}
-              label="User Type"
-              onChange={handleChange}
-            >
-              <MenuItem value="student">Student</MenuItem>
-              <MenuItem value="teacher">Teacher</MenuItem>
-            </Select>
-          </FormControl>
           <TextField
             margin="normal"
             required
@@ -97,6 +86,20 @@ const Login = () => {
             value={formData.password}
             onChange={handleChange}
           />
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="userType-label">User Type</InputLabel>
+            <Select
+              labelId="userType-label"
+              id="userType"
+              name="userType"
+              value={formData.userType}
+              label="User Type"
+              onChange={handleChange}
+            >
+              <MenuItem value="student">Student</MenuItem>
+              <MenuItem value="teacher">Teacher</MenuItem>
+            </Select>
+          </FormControl>
           <Button
             type="submit"
             fullWidth
@@ -106,8 +109,10 @@ const Login = () => {
             Sign In
           </Button>
           <Box sx={{ textAlign: 'center' }}>
-            <Link component={RouterLink} to="/register" variant="body2">
-              {"Don't have an account? Sign Up"}
+            <Link to="/register" style={{ textDecoration: 'none' }}>
+              <Typography variant="body2" color="primary">
+                Don't have an account? Sign Up
+              </Typography>
             </Link>
           </Box>
         </Box>
