@@ -75,6 +75,8 @@ exports.register = async (req, res) => {
         githubUsername,
         linkedinProfileUrl
       });
+
+      console.log('Student object created with githubUsername:', user.githubUsername);
     } else {
       console.log('Creating new teacher with data:', {
         name,
@@ -91,7 +93,11 @@ exports.register = async (req, res) => {
     }
 
     await user.save();
-    console.log('User created successfully:', user._id);
+    console.log('User saved successfully:', {
+      id: user._id,
+      email: user.email,
+      githubUsername: user.githubUsername
+    });
 
     // Create JWT token
     const token = jwt.sign(
@@ -100,18 +106,22 @@ exports.register = async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      userType,
+      leetcodeUsername: user.leetcodeUsername,
+      codechefUsername: user.codechefUsername,
+      githubUsername: user.githubUsername
+    };
+
+    console.log('Registration successful - User data:', userResponse);
+
     res.status(201).json({
       success: true,
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        userType,
-        leetcodeUsername: user.leetcodeUsername,
-        codechefUsername: user.codechefUsername,
-        githubUsername: user.githubUsername
-      }
+      user: userResponse
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -155,7 +165,8 @@ exports.login = async (req, res) => {
     console.log('User found:', user ? {
       id: user._id,
       email: user.email,
-      hasPassword: !!user.password
+      hasPassword: !!user.password,
+      githubUsername: user.githubUsername
     } : null);
     
     if (!user) {
@@ -200,20 +211,22 @@ exports.login = async (req, res) => {
     // Remove password from response
     user.password = undefined;
 
-    console.log('Login successful for user:', { id: user._id, email: user.email, userType });
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      userType,
+      leetcodeUsername: user.leetcodeUsername,
+      codechefUsername: user.codechefUsername,
+      githubUsername: user.githubUsername
+    };
+
+    console.log('Login successful for user:', userResponse);
 
     res.json({
       success: true,
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        userType,
-        leetcodeUsername: user.leetcodeUsername,
-        codechefUsername: user.codechefUsername,
-        githubUsername: user.githubUsername
-      }
+      user: userResponse
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -248,17 +261,27 @@ exports.verifyToken = async (req, res) => {
       });
     }
 
+    console.log('Token verification - User found:', {
+      id: user._id,
+      email: user.email,
+      githubUsername: user.githubUsername
+    });
+
+    const userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      userType: decoded.userType,
+      leetcodeUsername: user.leetcodeUsername,
+      codechefUsername: user.codechefUsername,
+      githubUsername: user.githubUsername
+    };
+
+    console.log('Token verification - Returning user data:', userResponse);
+
     res.json({
       success: true,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        userType: decoded.userType,
-        leetcodeUsername: user.leetcodeUsername,
-        codechefUsername: user.codechefUsername,
-        githubUsername: user.githubUsername
-      }
+      user: userResponse
     });
   } catch (error) {
     console.error('Token verification error:', error);
@@ -283,7 +306,8 @@ exports.debugUser = async (req, res) => {
     console.log('Student found:', student ? {
       id: student._id,
       email: student.email,
-      hasPassword: !!student.password
+      hasPassword: !!student.password,
+      githubUsername: student.githubUsername
     } : null);
     console.log('Teacher found:', teacher ? {
       id: teacher._id,
@@ -297,7 +321,8 @@ exports.debugUser = async (req, res) => {
         student: student ? {
           id: student._id,
           email: student.email,
-          hasPassword: !!student.password
+          hasPassword: !!student.password,
+          githubUsername: student.githubUsername
         } : null,
         teacher: teacher ? {
           id: teacher._id,

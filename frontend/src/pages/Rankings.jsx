@@ -23,7 +23,7 @@ const Rankings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rankings, setRankings] = useState([]);
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   useEffect(() => {
     const fetchRankings = async () => {
@@ -32,6 +32,12 @@ const Rankings = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setRankings(response.data.data);
+        
+        // Update user context with the latest user data
+        if (response.data.user) {
+          console.log('Rankings page - Updating user context with:', response.data.user);
+          setUser(response.data.user);
+        }
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch rankings');
       } finally {

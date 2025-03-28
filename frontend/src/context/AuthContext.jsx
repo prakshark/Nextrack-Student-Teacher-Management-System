@@ -17,7 +17,10 @@ export const AuthProvider = ({ children }) => {
       })
       .then(response => {
         console.log('AuthContext - Token verified, user data:', response.data.user);
-        setUser(response.data.user);
+        if (response.data.user) {
+          console.log('AuthContext - Setting user data from token verification:', response.data.user);
+          setUser(response.data.user);
+        }
       })
       .catch((error) => {
         console.error('AuthContext - Token verification failed:', error);
@@ -43,6 +46,7 @@ export const AuthProvider = ({ children }) => {
       });
       console.log('AuthContext - Login response:', response.data);
       const { token, user } = response.data;
+      console.log('AuthContext - Setting user data:', user);
       localStorage.setItem('token', token);
       setUser(user);
       return user;

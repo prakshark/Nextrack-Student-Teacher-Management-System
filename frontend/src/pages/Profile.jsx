@@ -43,6 +43,7 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         console.log('Profile page - Profile data received:', response.data.data);
+        console.log('Profile page - GitHub username from response:', response.data.data.githubUsername);
         setProfile(response.data.data);
         setFormData({
           name: response.data.data.name || '',
@@ -57,6 +58,7 @@ const Profile = () => {
           yearOfStudy: response.data.data.yearOfStudy || ''
         });
         console.log('Profile page - Form data set:', formData);
+        console.log('Profile page - GitHub username in form data:', formData.githubUsername);
       } catch (err) {
         console.error('Profile page - Error fetching profile:', err);
         setError(err.response?.data?.message || 'Failed to fetch profile');
@@ -69,6 +71,7 @@ const Profile = () => {
   }, []);
 
   const handleChange = (e) => {
+    console.log('Profile page - Form field changed:', e.target.name, e.target.value);
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -78,7 +81,20 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validate required fields
+      if (!formData.leetcodeUsername || !formData.codechefUsername || !formData.phone) {
+        setError('Please fill in all required fields: LeetCode Username, CodeChef Username, and Phone');
+        return;
+      }
+
       console.log('Profile page - Submitting profile update with data:', formData);
+      console.log('Profile page - GitHub username being sent:', formData.githubUsername);
+      console.log('Profile page - Required fields being sent:', {
+        leetcodeUsername: formData.leetcodeUsername,
+        codechefUsername: formData.codechefUsername,
+        phone: formData.phone
+      });
+
       const response = await axios.put(
         'http://localhost:5000/api/student/profile',
         formData,
@@ -87,12 +103,24 @@ const Profile = () => {
         }
       );
       console.log('Profile page - Profile update response:', response.data);
+      console.log('Profile page - GitHub username in response:', response.data.data.githubUsername);
       setProfile(response.data.data);
       setIsEditing(false);
       setError(null);
 
       // Update user context with the new data
-      setUser(response.data.data);
+      const userData = {
+        id: response.data.data.id,
+        name: response.data.data.name,
+        email: response.data.data.email,
+        userType: 'student',
+        leetcodeUsername: response.data.data.leetcodeUsername,
+        codechefUsername: response.data.data.codechefUsername,
+        githubUsername: response.data.data.githubUsername
+      };
+      console.log('Profile page - Updating user context with:', userData);
+      console.log('Profile page - GitHub username in user context:', userData.githubUsername);
+      setUser(userData);
     } catch (err) {
       console.error('Profile page - Error updating profile:', err);
       setError(err.response?.data?.message || 'Failed to update profile');

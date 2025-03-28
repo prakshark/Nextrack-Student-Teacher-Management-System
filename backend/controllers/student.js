@@ -95,9 +95,21 @@ exports.loginStudent = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRE
     });
 
+    // Remove password from response
+    student.password = undefined;
+
     res.status(200).json({
       success: true,
-      token
+      token,
+      user: {
+        id: student._id,
+        name: student.name,
+        email: student.email,
+        userType: 'student',
+        leetcodeUsername: student.leetcodeUsername,
+        codechefUsername: student.codechefUsername,
+        githubUsername: student.githubUsername
+      }
     });
   } catch (error) {
     res.status(400).json({
@@ -123,7 +135,15 @@ exports.getProfile = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: student
+      data: {
+        id: student._id,
+        name: student.name,
+        email: student.email,
+        userType: 'student',
+        leetcodeUsername: student.leetcodeUsername,
+        codechefUsername: student.codechefUsername,
+        githubUsername: student.githubUsername
+      }
     });
   } catch (error) {
     res.status(400).json({
@@ -138,7 +158,14 @@ exports.getProfile = async (req, res) => {
 // @access  Private
 exports.updateProfile = async (req, res) => {
   try {
-    console.log('Updating profile with data:', req.body);
+    console.log('Backend - Updating profile with data:', req.body);
+    console.log('Backend - GitHub username in request:', req.body.githubUsername);
+    console.log('Backend - Required fields check:', {
+      leetcodeUsername: req.body.leetcodeUsername,
+      codechefUsername: req.body.codechefUsername,
+      phone: req.body.phone
+    });
+
     const student = await Student.findByIdAndUpdate(
       req.user.userId,
       req.body,
@@ -155,26 +182,36 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
-    console.log('Updated student profile:', {
+    console.log('Backend - Updated student profile:', {
       id: student._id,
       githubUsername: student.githubUsername
     });
 
     // Return the same user object structure as auth endpoints
+    const responseData = {
+      id: student._id,
+      name: student.name,
+      email: student.email,
+      userType: 'student',
+      leetcodeUsername: student.leetcodeUsername,
+      codechefUsername: student.codechefUsername,
+      githubUsername: student.githubUsername
+    };
+    console.log('Backend - Sending response data:', responseData);
+    console.log('Backend - GitHub username in response:', responseData.githubUsername);
+
     res.status(200).json({
       success: true,
-      data: {
-        id: student._id,
-        name: student.name,
-        email: student.email,
-        userType: 'student',
-        leetcodeUsername: student.leetcodeUsername,
-        codechefUsername: student.codechefUsername,
-        githubUsername: student.githubUsername
-      }
+      data: responseData
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error('Backend - Error updating profile:', error);
+    console.error('Backend - Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      errors: error.errors
+    });
     res.status(400).json({
       success: false,
       message: error.message
@@ -237,7 +274,16 @@ exports.getRankings = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: student.rankings
+      data: student.rankings,
+      user: {
+        id: student._id,
+        name: student.name,
+        email: student.email,
+        userType: 'student',
+        leetcodeUsername: student.leetcodeUsername,
+        codechefUsername: student.codechefUsername,
+        githubUsername: student.githubUsername
+      }
     });
   } catch (error) {
     res.status(400).json({
