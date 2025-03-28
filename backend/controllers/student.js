@@ -291,4 +291,45 @@ exports.getRankings = async (req, res) => {
       message: error.message
     });
   }
+};
+
+// @desc    Toggle assignment completion status
+// @route   POST /api/student/assignments/:id/toggle-completion
+// @access  Private
+exports.toggleCompletion = async (req, res) => {
+  try {
+    const { isCompleted } = req.body;
+    const assignmentId = req.params.id;
+    const studentId = req.user.id;
+
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Assignment not found'
+      });
+    }
+
+    // Update completedBy array
+    if (isCompleted) {
+      if (!assignment.completedBy.includes(studentId)) {
+        assignment.completedBy.push(studentId);
+      }
+    } else {
+      assignment.completedBy = assignment.completedBy.filter(id => id.toString() !== studentId);
+    }
+
+    await assignment.save();
+
+    res.status(200).json({
+      success: true,
+      data: assignment
+    });
+  } catch (error) {
+    console.error('Error in toggleCompletion:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating completion status'
+    });
+  }
 }; 

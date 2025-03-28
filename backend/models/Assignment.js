@@ -6,13 +6,29 @@ const assignmentSchema = new mongoose.Schema({
     required: [true, 'Please add an assignment name'],
     trim: true
   },
-  link: {
+  description: {
     type: String,
-    required: [true, 'Please add a link to the assignment']
+    required: [true, 'Please add an assignment description'],
+    trim: true
   },
   deadline: {
-    type: Date,
+    type: String,
     required: [true, 'Please add a deadline']
+  },
+  links: {
+    type: [String],
+    required: [true, 'Please add at least one assignment link'],
+    validate: {
+      validator: function(v) {
+        return Array.isArray(v) && v.length > 0;
+      },
+      message: 'At least one link is required'
+    }
+  },
+  difficulty: {
+    type: String,
+    enum: ['easy', 'medium', 'hard'],
+    default: 'easy'
   },
   assignedTo: [{
     type: mongoose.Schema.Types.ObjectId,

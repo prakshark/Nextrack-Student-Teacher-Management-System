@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Container,
   Typography,
@@ -7,40 +7,19 @@ import {
   TextField,
   Button,
   Box,
-  CircularProgress,
   Alert
 } from '@mui/material';
-import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
 const TeacherProfile = () => {
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: ''
-  });
   const { user } = useAuth();
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/teacher/profile', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        setFormData(response.data.data);
-      } catch (err) {
-        console.error('Error fetching profile:', err);
-        setError(err.response?.data?.message || 'Failed to fetch profile');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || ''
+  });
 
   const handleChange = (e) => {
     setFormData({
@@ -52,13 +31,7 @@ const TeacherProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(
-        'http://localhost:5000/api/teacher/profile',
-        formData,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }
-      );
+      // TODO: Implement profile update API when backend is ready
       setIsEditing(false);
       setError(null);
     } catch (err) {
@@ -66,14 +39,6 @@ const TeacherProfile = () => {
       setError(err.response?.data?.message || 'Failed to update profile');
     }
   };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>

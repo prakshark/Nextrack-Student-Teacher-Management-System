@@ -1,35 +1,44 @@
 import { useState, useEffect } from 'react';
 import {
-  Box,
   Container,
   Typography,
+  Grid,
   Card,
   CardContent,
-  Grid,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   CircularProgress,
-  Alert,
-  Button,
-  Chip
+  Alert
 } from '@mui/material';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
 
 const Assignments = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [assignments, setAssignments] = useState([]);
-  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
 
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
+        const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:5000/api/student/assignments', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
-        setAssignments(response.data.data);
+        
+        const assignmentsArray = Array.isArray(response.data) ? response.data : response.data.data || [];
+        const sortedAssignments = assignmentsArray.sort((a, b) => {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        
+        setAssignments(sortedAssignments);
+        setLoading(false);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch assignments');
-      } finally {
+        console.error('Error fetching assignments:', err);
+        setError('Failed to fetch assignments. Please try again later.');
         setLoading(false);
       }
     };
@@ -37,32 +46,25 @@ const Assignments = () => {
     fetchAssignments();
   }, []);
 
-  const handleMarkComplete = async (assignmentId) => {
-    try {
-      await axios.post(`http://localhost:5000/api/assignment/${assignmentId}/complete`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      // Refresh assignments after marking as complete
-      const response = await axios.get('http://localhost:5000/api/student/assignments', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      setAssignments(response.data.data);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to mark assignment as complete');
-    }
+  const handleDifficultyChange = (event) => {
+    setSelectedDifficulty(event.target.value);
   };
+
+  const displayedAssignments = selectedDifficulty === 'all'
+    ? assignments
+    : assignments.filter(assignment => assignment.difficulty === selectedDifficulty);
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+      <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <CircularProgress />
-      </Box>
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container sx={{ mt: 4 }}>
         <Alert severity="error">{error}</Alert>
       </Container>
     );
@@ -70,52 +72,63 @@ const Assignments = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Assignments
-      </Typography>
-      <Grid container spacing={3}>
-        {assignments.map((assignment) => (
-          <Grid item xs={12} key={assignment._id}>
-            <Card>
-              <CardContent>
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Typography variant="h6" gutterBottom>
-                      {assignment.name}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+        <Typography variant="h4" component="h1">
+          Assignments
+        </Typography>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Difficulty</InputLabel>
+          <Select
+            value={selectedDifficulty}
+            label="Difficulty"
+            onChange={handleDifficultyChange}
+          >
+            <MenuItem value="all">All Difficulties</MenuItem>
+            <MenuItem value="easy">Easy</MenuItem>
+            <MenuItem value="medium">Medium</MenuItem>
+            <MenuItem value="hard">Hard</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      {displayedAssignments.length === 0 ? (
+        <Typography variant="h6" color="text.secondary" align="center">
+          No assignments available
+        </Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {displayedAssignments.map((assignment) => (
+            <Grid item xs={12} key={assignment._id}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {assignment.name}
+                  </Typography>
+                  <Typography color="text.secondary" gutterBottom>
+                    Due: {new Date(assignment.deadline).toLocaleString()}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Difficulty: {assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
+                  </Typography>
+                  <Typography variant="body1" paragraph>
+                    {assignment.description}
+                  </Typography>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Question Links:
+                  </Typography>
+                  {assignment.links.map((link, index) => (
+                    <Typography key={index} variant="body2" color="primary">
+                      <a href={link} target="_blank" rel="noopener noreferrer">
+                        Question {index + 1}
+                      </a>
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                      Deadline: {new Date(assignment.deadline).toLocaleDateString()}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Link: <a href={assignment.link} target="_blank" rel="noopener noreferrer">{assignment.link}</a>
-                    </Typography>
-                  </Box>
-                  <Box>
-                    {assignment.completedBy.includes(user.id) ? (
-                      <Chip label="Completed" color="success" />
-                    ) : (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleMarkComplete(assignment._id)}
-                      >
-                        Mark as Complete
-                      </Button>
-                    )}
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-        {assignments.length === 0 && (
-          <Grid item xs={12}>
-            <Typography variant="body1" color="text.secondary" align="center">
-              No assignments available
-            </Typography>
-          </Grid>
-        )}
-      </Grid>
+                  ))}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Container>
   );
 };
