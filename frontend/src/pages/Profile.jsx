@@ -78,12 +78,33 @@ const Profile = () => {
     });
   };
 
+  const handleEditClick = () => {
+    console.log('Profile page - Edit button clicked');
+    setIsEditing(true);
+  };
+
+  const handleCancelClick = () => {
+    console.log('Profile page - Cancel button clicked');
+    setIsEditing(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Profile page - Form submitted');
     try {
       // Validate required fields
-      if (!formData.leetcodeUsername || !formData.codechefUsername || !formData.phone) {
-        setError('Please fill in all required fields: LeetCode Username, CodeChef Username, and Phone');
+      const missingFields = [];
+      if (!formData.leetcodeUsername) missingFields.push('LeetCode Username');
+      if (!formData.codechefUsername) missingFields.push('CodeChef Username');
+      if (!formData.phone) missingFields.push('Phone');
+
+      if (missingFields.length > 0) {
+        console.log('Profile page - Validation failed:', {
+          leetcodeUsername: formData.leetcodeUsername,
+          codechefUsername: formData.codechefUsername,
+          phone: formData.phone
+        });
+        setError(`Please fill in the following required fields: ${missingFields.join(', ')}`);
         return;
       }
 
@@ -276,7 +297,7 @@ const Profile = () => {
                     <>
                       <Button
                         variant="outlined"
-                        onClick={() => setIsEditing(false)}
+                        onClick={handleCancelClick}
                       >
                         Cancel
                       </Button>
@@ -284,6 +305,7 @@ const Profile = () => {
                         variant="contained"
                         color="primary"
                         type="submit"
+                        onClick={() => console.log('Profile page - Save button clicked')}
                       >
                         Save Changes
                       </Button>
@@ -292,7 +314,7 @@ const Profile = () => {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => setIsEditing(true)}
+                      onClick={handleEditClick}
                     >
                       Edit Profile
                     </Button>
