@@ -7,7 +7,7 @@ const Teacher = require('../models/Teacher');
 exports.register = async (req, res) => {
   try {
     console.log('Registration request body:', req.body);
-    const { name, email, password, phone, userType, leetcodeUsername, codechefUsername, githubProfileUrl, linkedinProfileUrl } = req.body;
+    const { name, email, password, phone, userType, leetcodeUsername, codechefUsername, githubUsername, linkedinProfileUrl } = req.body;
 
     // Validate required fields
     if (!name || !email || !password || !phone || !userType) {
@@ -61,7 +61,7 @@ exports.register = async (req, res) => {
         phone,
         leetcodeUsername,
         codechefUsername,
-        githubProfileUrl,
+        githubUsername,
         linkedinProfileUrl
       });
 
@@ -72,7 +72,7 @@ exports.register = async (req, res) => {
         phone,
         leetcodeUsername,
         codechefUsername,
-        githubProfileUrl,
+        githubUsername,
         linkedinProfileUrl
       });
     } else {
@@ -107,7 +107,10 @@ exports.register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        userType
+        userType,
+        leetcodeUsername: user.leetcodeUsername,
+        codechefUsername: user.codechefUsername,
+        githubUsername: user.githubUsername
       }
     });
   } catch (error) {
@@ -208,7 +211,8 @@ exports.login = async (req, res) => {
         email: user.email,
         userType,
         leetcodeUsername: user.leetcodeUsername,
-        codechefUsername: user.codechefUsername
+        codechefUsername: user.codechefUsername,
+        githubUsername: user.githubUsername
       }
     });
   } catch (error) {
@@ -252,7 +256,8 @@ exports.verifyToken = async (req, res) => {
         email: user.email,
         userType: decoded.userType,
         leetcodeUsername: user.leetcodeUsername,
-        codechefUsername: user.codechefUsername
+        codechefUsername: user.codechefUsername,
+        githubUsername: user.githubUsername
       }
     });
   } catch (error) {

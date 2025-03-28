@@ -13,9 +13,9 @@ exports.registerStudent = async (req, res) => {
       email,
       password,
       phone,
-      leetcodeProfileUrl,
-      codechefProfileUrl,
-      githubProfileUrl,
+      leetcodeUsername,
+      codechefUsername,
+      githubUsername,
       linkedinProfileUrl
     } = req.body;
 
@@ -25,9 +25,9 @@ exports.registerStudent = async (req, res) => {
       email,
       password,
       phone,
-      leetcodeProfileUrl,
-      codechefProfileUrl,
-      githubProfileUrl,
+      leetcodeUsername,
+      codechefUsername,
+      githubUsername,
       linkedinProfileUrl
     });
 
@@ -38,7 +38,16 @@ exports.registerStudent = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      token
+      token,
+      user: {
+        id: student._id,
+        name: student.name,
+        email: student.email,
+        userType: 'student',
+        leetcodeUsername: student.leetcodeUsername,
+        codechefUsername: student.codechefUsername,
+        githubUsername: student.githubUsername
+      }
     });
   } catch (error) {
     res.status(400).json({
@@ -129,6 +138,7 @@ exports.getProfile = async (req, res) => {
 // @access  Private
 exports.updateProfile = async (req, res) => {
   try {
+    console.log('Updating profile with data:', req.body);
     const student = await Student.findByIdAndUpdate(
       req.user.userId,
       req.body,
@@ -145,11 +155,26 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
+    console.log('Updated student profile:', {
+      id: student._id,
+      githubUsername: student.githubUsername
+    });
+
+    // Return the same user object structure as auth endpoints
     res.status(200).json({
       success: true,
-      data: student
+      data: {
+        id: student._id,
+        name: student.name,
+        email: student.email,
+        userType: 'student',
+        leetcodeUsername: student.leetcodeUsername,
+        codechefUsername: student.codechefUsername,
+        githubUsername: student.githubUsername
+      }
     });
   } catch (error) {
+    console.error('Error updating profile:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -199,8 +224,7 @@ exports.getRankings = async (req, res) => {
     const codechefResponse = await axios.get(`https://codechef-api.vercel.app/${student.codechefUsername}`);
     
     // Fetch GitHub data
-    const githubUsername = student.githubProfileUrl.split('/').pop();
-    const githubResponse = await axios.get(`https://api.github.com/users/${githubUsername}`);
+    const githubResponse = await axios.get(`https://api.github.com/users/${student.githubUsername}`);
 
     // Update rankings
     student.rankings = {

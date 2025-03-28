@@ -27,20 +27,22 @@ const Profile = () => {
     phone: '',
     leetcodeUsername: '',
     codechefUsername: '',
-    githubProfileUrl: '',
+    githubUsername: '',
     linkedinProfileUrl: '',
     college: '',
     course: '',
     yearOfStudy: ''
   });
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        console.log('Profile page - Fetching profile data');
         const response = await axios.get('http://localhost:5000/api/student/profile', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
+        console.log('Profile page - Profile data received:', response.data.data);
         setProfile(response.data.data);
         setFormData({
           name: response.data.data.name || '',
@@ -48,13 +50,15 @@ const Profile = () => {
           phone: response.data.data.phone || '',
           leetcodeUsername: response.data.data.leetcodeUsername || '',
           codechefUsername: response.data.data.codechefUsername || '',
-          githubProfileUrl: response.data.data.githubProfileUrl || '',
+          githubUsername: response.data.data.githubUsername || '',
           linkedinProfileUrl: response.data.data.linkedinProfileUrl || '',
           college: response.data.data.college || '',
           course: response.data.data.course || '',
           yearOfStudy: response.data.data.yearOfStudy || ''
         });
+        console.log('Profile page - Form data set:', formData);
       } catch (err) {
+        console.error('Profile page - Error fetching profile:', err);
         setError(err.response?.data?.message || 'Failed to fetch profile');
       } finally {
         setLoading(false);
@@ -74,6 +78,7 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Profile page - Submitting profile update with data:', formData);
       const response = await axios.put(
         'http://localhost:5000/api/student/profile',
         formData,
@@ -81,10 +86,15 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         }
       );
+      console.log('Profile page - Profile update response:', response.data);
       setProfile(response.data.data);
       setIsEditing(false);
       setError(null);
+
+      // Update user context with the new data
+      setUser(response.data.data);
     } catch (err) {
+      console.error('Profile page - Error updating profile:', err);
       setError(err.response?.data?.message || 'Failed to update profile');
     }
   };
@@ -214,11 +224,12 @@ const Profile = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="GitHub Profile URL"
-                  name="githubProfileUrl"
-                  value={formData.githubProfileUrl}
+                  label="GitHub Username"
+                  name="githubUsername"
+                  value={formData.githubUsername}
                   onChange={handleChange}
                   disabled={!isEditing}
+                  helperText="Enter only your GitHub username (e.g., prakshark)"
                 />
               </Grid>
               <Grid item xs={12} sm={6}>

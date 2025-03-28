@@ -34,7 +34,7 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add your CodeChef username']
   },
-  githubProfileUrl: {
+  githubUsername: {
     type: String,
     required: false
   },

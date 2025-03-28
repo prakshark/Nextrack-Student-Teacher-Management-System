@@ -25,7 +25,7 @@ const Register = () => {
     userType: 'student',
     leetcodeUsername: '',
     codechefUsername: '',
-    githubProfileUrl: '',
+    githubUsername: '',
     linkedinProfileUrl: ''
   });
   const [error, setError] = useState('');
@@ -157,10 +157,11 @@ const Register = () => {
                 <TextField
                   required
                   fullWidth
-                  name="githubProfileUrl"
-                  label="GitHub Profile URL"
-                  value={formData.githubProfileUrl}
+                  name="githubUsername"
+                  label="GitHub Username"
+                  value={formData.githubUsername}
                   onChange={handleChange}
+                  helperText="Enter only your GitHub username (e.g., prakshark)"
                 />
               </Grid>
               <Grid item xs={12}>
