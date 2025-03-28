@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -54,6 +53,8 @@ const Dashboard = () => {
       <Typography variant="h4" gutterBottom>
         Welcome, {user?.name || 'Student'}!
       </Typography>
+      
+      {/* Quick Access Cards */}
       <Grid container spacing={3}>
         {cards.map((card) => (
           <Grid item xs={12} sm={6} md={3} key={card.title}>

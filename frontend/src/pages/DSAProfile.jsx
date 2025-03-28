@@ -7,33 +7,134 @@ import {
   CardContent,
   Grid,
   CircularProgress,
-  Alert
+  Alert,
+  Paper,
+  Divider,
+  Button,
+  Tooltip,
+  Chip
 } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend,
+  ArcElement,
+  BarElement
+} from 'chart.js';
+import { Line, Bar } from 'react-chartjs-2';
+import { useNavigate } from 'react-router-dom';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  ChartTooltip,
+  Legend,
+  ArcElement,
+  BarElement
+);
 
 const DSAProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [leetcodeData, setLeetcodeData] = useState(null);
+  const [codechefData, setCodechefData] = useState(null);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/student/profile', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        setProfile(response.data.data);
+        setLoading(true);
+        setError(null);
+
+        // Check if usernames exist
+        if (!user?.leetcodeUsername) {
+          setError('Please update your profile with Leetcode username');
+          setLoading(false);
+          return;
+        }
+
+        if (!user?.codechefUsername) {
+          setError('Please update your profile with Codechef username');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch Leetcode data
+        try {
+          const leetcodeResponse = await axios.get(`https://alfa-leetcode-api.onrender.com/${user.leetcodeUsername}`);
+          console.log('Leetcode API Response:', leetcodeResponse.data);
+          setLeetcodeData(leetcodeResponse.data);
+        } catch (leetcodeErr) {
+          console.error('Error fetching Leetcode data:', leetcodeErr);
+          setLeetcodeData(null);
+        }
+
+        // Fetch Codechef data
+        try {
+          const codechefResponse = await axios.get(`https://codechef-api.vercel.app/${user.codechefUsername}`);
+          console.log('Codechef API Response:', codechefResponse.data);
+          setCodechefData(codechefResponse.data);
+        } catch (codechefErr) {
+          console.error('Error fetching Codechef data:', codechefErr);
+          setCodechefData(null);
+        }
+
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch DSA profile');
+        setError('Failed to fetch profile data');
+        console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
-  }, []);
+    fetchData();
+  }, [user]);
+
+  const leetcodeChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Leetcode Problem Solving Progress'
+      }
+    },
+    animation: {
+      duration: 2000,
+      easing: 'easeInOutQuart'
+    }
+  };
+
+  const codechefChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Codechef Rating Progress'
+      }
+    },
+    animation: {
+      duration: 2000,
+      easing: 'easeInOutQuart'
+    }
+  };
 
   if (loading) {
     return (
@@ -46,7 +147,16 @@ const DSAProfile = () => {
   if (error) {
     return (
       <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert 
+          severity="error" 
+          action={
+            <Button color="inherit" size="small" onClick={() => navigate('/profile')}>
+              Update Profile
+            </Button>
+          }
+        >
+          {error}
+        </Alert>
       </Container>
     );
   }
@@ -56,44 +166,209 @@ const DSAProfile = () => {
       <Typography variant="h4" gutterBottom>
         DSA Profile
       </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                LeetCode Profile
-              </Typography>
-              <Typography variant="body1">
-                Username: {profile?.leetcodeProfileUrl?.split('/').pop()}
-              </Typography>
-              <Typography variant="body1">
-                Problems Solved: {profile?.rankings?.leetcode?.totalSolved || 'N/A'}
-              </Typography>
-              <Typography variant="body1">
-                Contest Rating: {profile?.rankings?.leetcode?.contestRating || 'N/A'}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                CodeChef Profile
-              </Typography>
-              <Typography variant="body1">
-                Username: {profile?.codechefProfileUrl?.split('/').pop()}
-              </Typography>
-              <Typography variant="body1">
-                Rating: {profile?.rankings?.codechef?.rating || 'N/A'}
-              </Typography>
-              <Typography variant="body1">
-                Problems Solved: {profile?.rankings?.codechef?.problemsSolved || 'N/A'}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+
+      {/* Leetcode Section */}
+      <Card sx={{ mb: 4 }}>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Leetcode Profile
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default' }}>
+                <Typography variant="h6" gutterBottom>
+                  Skills Overview
+                </Typography>
+                <Box sx={{ height: 300 }}>
+                  <Bar
+                    data={{
+                      labels: leetcodeData?.skillTags || [],
+                      datasets: [
+                        {
+                          label: 'Skills',
+                          data: leetcodeData?.skillTags?.map(() => 1) || [],
+                          backgroundColor: '#1976d2',
+                          borderColor: '#1976d2',
+                          borderWidth: 1
+                        }
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: {
+                          display: false
+                        },
+                        title: {
+                          display: true,
+                          text: 'Programming Skills'
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            stepSize: 1
+                          }
+                        }
+                      }
+                    }}
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default' }}>
+                <Typography variant="h6" gutterBottom>
+                  Profile Overview
+                </Typography>
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body1">
+                    Username: {leetcodeData?.username || 'Not provided'}
+                  </Typography>
+                  <Typography variant="body1">
+                    Ranking: #{leetcodeData?.ranking || 'N/A'}
+                  </Typography>
+                  <Typography variant="body1" sx={{ mt: 2 }}>
+                    Skills:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                    {leetcodeData?.skillTags?.map((skill, index) => (
+                      <Chip 
+                        key={index} 
+                        label={skill} 
+                        size="small" 
+                        color="primary" 
+                        variant="outlined"
+                      />
+                    ))}
+                  </Box>
+                  <Button 
+                    variant="contained" 
+                    color="primary" 
+                    href={`https://leetcode.com/${leetcodeData?.username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ mt: 2 }}
+                  >
+                    View Leetcode Profile
+                  </Button>
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Codechef Section */}
+      <Card>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Codechef Profile
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default' }}>
+                <Typography variant="h6" gutterBottom>
+                  Rating Overview
+                </Typography>
+                <Box sx={{ height: 300 }}>
+                  <Bar
+                    data={{
+                      labels: ['Current Rating', 'Highest Rating', 'Global Rank', 'Country Rank'],
+                      datasets: [
+                        {
+                          label: 'Profile Statistics',
+                          data: [
+                            codechefData?.currentRating || 0,
+                            codechefData?.highestRating || 0,
+                            codechefData?.globalRank || 0,
+                            codechefData?.countryRank || 0
+                          ],
+                          backgroundColor: [
+                            '#1976d2',
+                            '#2e7d32',
+                            '#ed6c02',
+                            '#9c27b0'
+                          ],
+                          borderColor: [
+                            '#1976d2',
+                            '#2e7d32',
+                            '#ed6c02',
+                            '#9c27b0'
+                          ],
+                          borderWidth: 1
+                        }
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: {
+                          display: false
+                        },
+                        title: {
+                          display: true,
+                          text: 'Profile Statistics'
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: {
+                            display: true,
+                            text: 'Value'
+                          }
+                        }
+                      }
+                    }}
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default' }}>
+                <Typography variant="h6" gutterBottom>
+                  Profile Overview
+                </Typography>
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body1">
+                    Username: {codechefData?.name || 'Not provided'}
+                  </Typography>
+                  <Typography variant="body1">
+                    Current Rating: {codechefData?.currentRating || 'Unrated'}
+                  </Typography>
+                  <Typography variant="body1">
+                    Highest Rating: {codechefData?.highestRating || 'Unrated'}
+                  </Typography>
+                  <Typography variant="body1">
+                    Global Rank: #{codechefData?.globalRank || 'N/A'}
+                  </Typography>
+                  <Typography variant="body1">
+                    Country Rank: #{codechefData?.countryRank || 'N/A'}
+                  </Typography>
+                  <Typography variant="body1">
+                    Stars: {codechefData?.stars || 'Unrated'}
+                  </Typography>
+                  <Typography variant="body1">
+                    Country: {codechefData?.countryName || 'N/A'}
+                  </Typography>
+                  <Button 
+                    variant="contained" 
+                    color="primary" 
+                    href={`https://www.codechef.com/users/${codechefData?.name}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ mt: 2 }}
+                  >
+                    View Codechef Profile
+                  </Button>
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
     </Container>
   );
 };

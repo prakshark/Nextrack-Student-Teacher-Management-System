@@ -193,12 +193,10 @@ exports.getRankings = async (req, res) => {
     }
 
     // Fetch Leetcode data
-    const leetcodeUsername = student.leetcodeProfileUrl.split('/').pop();
-    const leetcodeResponse = await axios.get(`https://alfa-leetcode-api.onrender.com/${leetcodeUsername}`);
+    const leetcodeResponse = await axios.get(`https://alfa-leetcode-api.onrender.com/userProfile/${student.leetcodeUsername}`);
     
     // Fetch Codechef data
-    const codechefUsername = student.codechefProfileUrl.split('/').pop();
-    const codechefResponse = await axios.get(`https://codechef-api.vercel.app/${codechefUsername}`);
+    const codechefResponse = await axios.get(`https://codechef-api.vercel.app/${student.codechefUsername}`);
     
     // Fetch GitHub data
     const githubUsername = student.githubProfileUrl.split('/').pop();

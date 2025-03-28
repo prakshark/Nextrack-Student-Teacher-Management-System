@@ -7,7 +7,7 @@ const Teacher = require('../models/Teacher');
 exports.register = async (req, res) => {
   try {
     console.log('Registration request body:', req.body);
-    const { name, email, password, phone, userType, leetcodeProfileUrl, codechefProfileUrl, githubProfileUrl, linkedinProfileUrl } = req.body;
+    const { name, email, password, phone, userType, leetcodeUsername, codechefUsername, githubProfileUrl, linkedinProfileUrl } = req.body;
 
     // Validate required fields
     if (!name || !email || !password || !phone || !userType) {
@@ -47,11 +47,11 @@ exports.register = async (req, res) => {
     let user;
     if (userType === 'student') {
       // Validate student-specific fields
-      if (!leetcodeProfileUrl || !codechefProfileUrl || !githubProfileUrl || !linkedinProfileUrl) {
-        console.log('Missing student profile URLs:', { leetcodeProfileUrl, codechefProfileUrl, githubProfileUrl, linkedinProfileUrl });
+      if (!leetcodeUsername || !codechefUsername) {
+        console.log('Missing student profile data:', { leetcodeUsername, codechefUsername });
         return res.status(400).json({ 
           success: false,
-          message: 'Please provide all profile URLs for student registration' 
+          message: 'Please provide your LeetCode and CodeChef usernames' 
         });
       }
 
@@ -59,8 +59,8 @@ exports.register = async (req, res) => {
         name,
         email,
         phone,
-        leetcodeProfileUrl,
-        codechefProfileUrl,
+        leetcodeUsername,
+        codechefUsername,
         githubProfileUrl,
         linkedinProfileUrl
       });
@@ -70,8 +70,8 @@ exports.register = async (req, res) => {
         email,
         password, // Let the pre-save middleware handle hashing
         phone,
-        leetcodeProfileUrl,
-        codechefProfileUrl,
+        leetcodeUsername,
+        codechefUsername,
         githubProfileUrl,
         linkedinProfileUrl
       });
@@ -206,7 +206,9 @@ exports.login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        userType
+        userType,
+        leetcodeUsername: user.leetcodeUsername,
+        codechefUsername: user.codechefUsername
       }
     });
   } catch (error) {
@@ -248,7 +250,9 @@ exports.verifyToken = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        userType: decoded.userType
+        userType: decoded.userType,
+        leetcodeUsername: user.leetcodeUsername,
+        codechefUsername: user.codechefUsername
       }
     });
   } catch (error) {

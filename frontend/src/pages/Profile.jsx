@@ -25,6 +25,10 @@ const Profile = () => {
     name: '',
     email: '',
     phone: '',
+    leetcodeUsername: '',
+    codechefUsername: '',
+    githubProfileUrl: '',
+    linkedinProfileUrl: '',
     college: '',
     course: '',
     yearOfStudy: ''
@@ -42,6 +46,10 @@ const Profile = () => {
           name: response.data.data.name || '',
           email: response.data.data.email || '',
           phone: response.data.data.phone || '',
+          leetcodeUsername: response.data.data.leetcodeUsername || '',
+          codechefUsername: response.data.data.codechefUsername || '',
+          githubProfileUrl: response.data.data.githubProfileUrl || '',
+          linkedinProfileUrl: response.data.data.linkedinProfileUrl || '',
           college: response.data.data.college || '',
           course: response.data.data.course || '',
           yearOfStudy: response.data.data.yearOfStudy || ''
@@ -172,6 +180,53 @@ const Profile = () => {
                   label="Year of Study"
                   name="yearOfStudy"
                   value={formData.yearOfStudy}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                  Coding Profiles
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="LeetCode Username"
+                  name="leetcodeUsername"
+                  value={formData.leetcodeUsername}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                  helperText="Enter only your LeetCode username (e.g., prakshark)"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="CodeChef Username"
+                  name="codechefUsername"
+                  value={formData.codechefUsername}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                  helperText="Enter only your CodeChef username (e.g., prakshark)"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="GitHub Profile URL"
+                  name="githubProfileUrl"
+                  value={formData.githubProfileUrl}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="LinkedIn Profile URL"
+                  name="linkedinProfileUrl"
+                  value={formData.linkedinProfileUrl}
                   onChange={handleChange}
                   disabled={!isEditing}
                 />

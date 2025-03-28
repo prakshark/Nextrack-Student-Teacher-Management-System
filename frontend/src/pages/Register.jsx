@@ -23,8 +23,8 @@ const Register = () => {
     password: '',
     phone: '',
     userType: 'student',
-    leetcodeProfileUrl: '',
-    codechefProfileUrl: '',
+    leetcodeUsername: '',
+    codechefUsername: '',
     githubProfileUrl: '',
     linkedinProfileUrl: ''
   });
@@ -33,10 +33,11 @@ const Register = () => {
   const { register } = useAuth();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -134,20 +135,22 @@ const Register = () => {
                 <TextField
                   required
                   fullWidth
-                  name="leetcodeProfileUrl"
-                  label="Leetcode Profile URL"
-                  value={formData.leetcodeProfileUrl}
+                  name="leetcodeUsername"
+                  label="LeetCode Username"
+                  value={formData.leetcodeUsername}
                   onChange={handleChange}
+                  helperText="Enter only your LeetCode username (e.g., prakshark)"
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
-                  name="codechefProfileUrl"
-                  label="Codechef Profile URL"
-                  value={formData.codechefProfileUrl}
+                  name="codechefUsername"
+                  label="CodeChef Username"
+                  value={formData.codechefUsername}
                   onChange={handleChange}
+                  helperText="Enter only your CodeChef username (e.g., prakshark)"
                 />
               </Grid>
               <Grid item xs={12}>
@@ -182,7 +185,7 @@ const Register = () => {
           </Button>
           <Box sx={{ textAlign: 'center' }}>
             <Link component={RouterLink} to="/login" variant="body2">
-              {"Already have an account? Sign In"}
+              Already have an account? Sign in
             </Link>
           </Box>
         </Box>

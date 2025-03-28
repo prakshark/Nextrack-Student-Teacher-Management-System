@@ -7,7 +7,8 @@ import {
   CardContent,
   Grid,
   CircularProgress,
-  Alert
+  Alert,
+  Button
 } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +17,7 @@ const Development = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [githubData, setGithubData] = useState(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -25,6 +27,16 @@ const Development = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setProfile(response.data.data);
+
+        // If we have a GitHub username, fetch GitHub data
+        if (response.data.data?.githubUsername) {
+          try {
+            const githubResponse = await axios.get(`https://api.github.com/users/${response.data.data.githubUsername}`);
+            setGithubData(githubResponse.data);
+          } catch (githubErr) {
+            console.error('Failed to fetch GitHub data:', githubErr);
+          }
+        }
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch development profile');
       } finally {
@@ -64,14 +76,26 @@ const Development = () => {
                 GitHub Profile
               </Typography>
               <Typography variant="body1">
-                Username: {profile?.githubProfileUrl?.split('/').pop()}
+                Username: {profile?.githubUsername || 'Not provided'}
               </Typography>
               <Typography variant="body1">
-                Public Repositories: {profile?.rankings?.github?.public_repos || 'N/A'}
+                Public Repositories: {githubData?.public_repos || 'N/A'}
               </Typography>
               <Typography variant="body1">
-                Followers: {profile?.rankings?.github?.followers || 'N/A'}
+                Followers: {githubData?.followers || 'N/A'}
               </Typography>
+              {profile?.githubUsername && (
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  href={`https://github.com/${profile.githubUsername}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ mt: 2 }}
+                >
+                  View GitHub Profile
+                </Button>
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -82,14 +106,20 @@ const Development = () => {
                 LinkedIn Profile
               </Typography>
               <Typography variant="body1">
-                Profile URL: {profile?.linkedinProfileUrl}
+                Username: {profile?.linkedinUsername || 'Not provided'}
               </Typography>
-              <Typography variant="body1">
-                Network Size: {profile?.rankings?.linkedin?.networkSize || 'N/A'}
-              </Typography>
-              <Typography variant="body1">
-                Connections: {profile?.rankings?.linkedin?.connections || 'N/A'}
-              </Typography>
+              {profile?.linkedinUsername && (
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  href={`https://linkedin.com/in/${profile.linkedinUsername}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ mt: 2 }}
+                >
+                  View LinkedIn Profile
+                </Button>
+              )}
             </CardContent>
           </Card>
         </Grid>

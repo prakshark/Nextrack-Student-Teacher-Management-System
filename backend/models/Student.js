@@ -26,21 +26,21 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a phone number']
   },
-  leetcodeProfileUrl: {
+  leetcodeUsername: {
     type: String,
-    required: [true, 'Please add your Leetcode profile URL']
+    required: [true, 'Please add your LeetCode username']
   },
-  codechefProfileUrl: {
+  codechefUsername: {
     type: String,
-    required: [true, 'Please add your Codechef profile URL']
+    required: [true, 'Please add your CodeChef username']
   },
   githubProfileUrl: {
     type: String,
-    required: [true, 'Please add your GitHub profile URL']
+    required: false
   },
   linkedinProfileUrl: {
     type: String,
-    required: [true, 'Please add your LinkedIn profile URL']
+    required: false
   },
   assignments: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -60,6 +60,16 @@ const studentSchema = new mongoose.Schema({
       default: {}
     }
   },
+  platformData: {
+    leetcode: {
+      data: Object,
+      lastUpdated: Date
+    },
+    codechef: {
+      data: Object,
+      lastUpdated: Date
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -69,10 +79,11 @@ const studentSchema = new mongoose.Schema({
 // Encrypt password using bcrypt
 studentSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 // Match user entered password to hashed password in database
