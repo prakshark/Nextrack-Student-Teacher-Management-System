@@ -36,7 +36,12 @@ const Login = () => {
     try {
       console.log('Submitting login form with:', formData);
       await login(formData.email, formData.password, formData.userType);
-      navigate('/dashboard');
+      // Navigate based on user type
+      if (formData.userType === 'teacher') {
+        navigate('/teacher/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Login form error:', error);
       setError(error.response?.data?.message || 'Invalid email or password');
