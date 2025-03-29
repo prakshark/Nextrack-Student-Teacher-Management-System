@@ -15,11 +15,13 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import LeetCodeStats from '../components/LeetCodeStats';
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [leetcodeStats, setLeetcodeStats] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -43,7 +45,6 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         console.log('Profile page - Profile data received:', response.data.data);
-        console.log('Profile page - GitHub username from response:', response.data.data.githubUsername);
         setProfile(response.data.data);
         setFormData({
           name: response.data.data.name || '',
@@ -57,8 +58,14 @@ const Profile = () => {
           course: response.data.data.course || '',
           yearOfStudy: response.data.data.yearOfStudy || ''
         });
-        console.log('Profile page - Form data set:', formData);
-        console.log('Profile page - GitHub username in form data:', formData.githubUsername);
+
+        // Fetch LeetCode stats
+        if (response.data.data.leetcodeUsername) {
+          const rankingsResponse = await axios.get('http://localhost:5000/api/student/rankings', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          });
+          setLeetcodeStats(rankingsResponse.data.data.leetcode);
+        }
       } catch (err) {
         console.error('Profile page - Error fetching profile:', err);
         setError(err.response?.data?.message || 'Failed to fetch profile');
@@ -256,7 +263,7 @@ const Profile = () => {
                   value={formData.leetcodeUsername}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  helperText="Enter only your LeetCode username (e.g., prakshark)"
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -267,7 +274,7 @@ const Profile = () => {
                   value={formData.codechefUsername}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  helperText="Enter only your CodeChef username (e.g., prakshark)"
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -278,7 +285,6 @@ const Profile = () => {
                   value={formData.githubUsername}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  helperText="Enter only your GitHub username (e.g., prakshark)"
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -325,6 +331,9 @@ const Profile = () => {
           </form>
         </CardContent>
       </Card>
+
+      {/* LeetCode Statistics */}
+      {leetcodeStats && <LeetCodeStats data={leetcodeStats} />}
     </Container>
   );
 };

@@ -73,7 +73,7 @@ const DSAProfile = () => {
 
         // Fetch Leetcode data
         try {
-          const leetcodeResponse = await axios.get(`https://alfa-leetcode-api.onrender.com/${user.leetcodeUsername}`);
+          const leetcodeResponse = await axios.get(`https://leetcode-api-faisalshohag.vercel.app/${user.leetcodeUsername}`);
           console.log('Leetcode API Response:', leetcodeResponse.data);
           setLeetcodeData(leetcodeResponse.data);
         } catch (leetcodeErr) {
@@ -174,21 +174,38 @@ const DSAProfile = () => {
             Leetcode Profile
           </Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={8}>
               <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default' }}>
                 <Typography variant="h6" gutterBottom>
-                  Skills Overview
+                  Problem Solving Statistics
                 </Typography>
                 <Box sx={{ height: 300 }}>
                   <Bar
                     data={{
-                      labels: leetcodeData?.skillTags || [],
+                      labels: ['Easy', 'Medium', 'Hard', 'Total'],
                       datasets: [
                         {
-                          label: 'Skills',
-                          data: leetcodeData?.skillTags?.map(() => 1) || [],
+                          label: 'Solved Problems',
+                          data: [
+                            leetcodeData?.easySolved || 0,
+                            leetcodeData?.mediumSolved || 0,
+                            leetcodeData?.hardSolved || 0,
+                            leetcodeData?.totalSolved || 0
+                          ],
                           backgroundColor: '#1976d2',
                           borderColor: '#1976d2',
+                          borderWidth: 1
+                        },
+                        {
+                          label: 'Total Questions',
+                          data: [
+                            leetcodeData?.totalEasy || 0,
+                            leetcodeData?.totalMedium || 0,
+                            leetcodeData?.totalHard || 0,
+                            leetcodeData?.totalQuestions || 0
+                          ],
+                          backgroundColor: '#2e7d32',
+                          borderColor: '#2e7d32',
                           borderWidth: 1
                         }
                       ]
@@ -197,18 +214,19 @@ const DSAProfile = () => {
                       responsive: true,
                       plugins: {
                         legend: {
-                          display: false
+                          position: 'top',
                         },
                         title: {
                           display: true,
-                          text: 'Programming Skills'
+                          text: 'Problem Solving Progress'
                         }
                       },
                       scales: {
                         y: {
                           beginAtZero: true,
-                          ticks: {
-                            stepSize: 1
+                          title: {
+                            display: true,
+                            text: 'Count'
                           }
                         }
                       }
@@ -217,36 +235,37 @@ const DSAProfile = () => {
                 </Box>
               </Paper>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
               <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default' }}>
                 <Typography variant="h6" gutterBottom>
                   Profile Overview
                 </Typography>
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="body1">
-                    Username: {leetcodeData?.username || 'Not provided'}
+                    Username: {user?.leetcodeUsername || 'Not provided'}
                   </Typography>
-                  <Typography variant="body1">
+                  <Typography variant="h4" color="primary" sx={{ mt: 2 }}>
                     Ranking: #{leetcodeData?.ranking || 'N/A'}
                   </Typography>
                   <Typography variant="body1" sx={{ mt: 2 }}>
-                    Skills:
+                    Summary:
                   </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-                    {leetcodeData?.skillTags?.map((skill, index) => (
-                      <Chip 
-                        key={index} 
-                        label={skill} 
-                        size="small" 
-                        color="primary" 
-                        variant="outlined"
-                      />
-                    ))}
-                  </Box>
+                  <Typography variant="body1">
+                    • Easy: {leetcodeData?.easySolved || 0} / {leetcodeData?.totalEasy || 0}
+                  </Typography>
+                  <Typography variant="body1">
+                    • Medium: {leetcodeData?.mediumSolved || 0} / {leetcodeData?.totalMedium || 0}
+                  </Typography>
+                  <Typography variant="body1">
+                    • Hard: {leetcodeData?.hardSolved || 0} / {leetcodeData?.totalHard || 0}
+                  </Typography>
+                  <Typography variant="body1">
+                    • Total: {leetcodeData?.totalSolved || 0} / {leetcodeData?.totalQuestions || 0}
+                  </Typography>
                   <Button 
                     variant="contained" 
                     color="primary" 
-                    href={`https://leetcode.com/${leetcodeData?.username}`}
+                    href={`https://leetcode.com/${user?.leetcodeUsername}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{ mt: 2 }}

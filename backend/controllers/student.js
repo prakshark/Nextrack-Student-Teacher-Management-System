@@ -224,8 +224,16 @@ exports.updateProfile = async (req, res) => {
 // @access  Private
 exports.getAssignments = async (req, res) => {
   try {
-    console.log('Getting assignments for student:', req.user.id);
+    console.log('Getting assignments for student. User object:', req.user);
     
+    if (!req.user || !req.user.id) {
+      console.log('No user ID found in request');
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
     // First, check if the student exists
     const student = await Student.findById(req.user.id);
     console.log('Found student:', student ? 'Yes' : 'No');
@@ -245,19 +253,9 @@ exports.getAssignments = async (req, res) => {
       });
     }
 
-    // Get all assignments
-    const allAssignments = await Assignment.find();
-    console.log('Total assignments in database:', allAssignments.length);
-    console.log('All assignments:', allAssignments.map(a => ({
-      id: a._id,
-      name: a.name,
-      assignedTo: a.assignedTo,
-      deadline: a.deadline
-    })));
-    
-    // Get assignments assigned to this student
+    // Get assignments where this student is in the assignedTo array
     const assignments = await Assignment.find({
-      assignedTo: student._id
+      assignedTo: { $in: [student._id] }
     });
     
     console.log('Assignments found for student:', assignments.length);
@@ -268,32 +266,15 @@ exports.getAssignments = async (req, res) => {
       deadline: a.deadline
     })));
 
-    // If no assignments found, check if there's an issue with the assignedTo field
-    if (assignments.length === 0 && allAssignments.length > 0) {
-      console.log('No assignments found for student but assignments exist in database');
-      console.log('Checking assignedTo field format...');
-      const sampleAssignment = allAssignments[0];
-      console.log('Sample assignment assignedTo:', sampleAssignment.assignedTo);
-      console.log('Student ID type:', typeof student._id);
-      console.log('Student ID:', student._id);
-      console.log('Assignment assignedTo type:', typeof sampleAssignment.assignedTo[0]);
-      console.log('Assignment assignedTo:', sampleAssignment.assignedTo[0]);
-    }
-
     res.status(200).json({
       success: true,
       data: assignments
     });
   } catch (error) {
     console.error('Error in getAssignments:', error);
-    console.error('Error details:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    });
-    res.status(400).json({
+    res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Error fetching assignments'
     });
   }
 };
@@ -312,8 +293,30 @@ exports.getRankings = async (req, res) => {
       });
     }
 
-    // Fetch Leetcode data
-    const leetcodeResponse = await axios.get(`https://alfa-leetcode-api.onrender.com/userProfile/${student.leetcodeUsername}`);
+    // Fetch Leetcode data using new API
+    const leetcodeResponse = await axios.get(`https://leetcode-api-faisalshohag.vercel.app/${student.leetcodeUsername}`);
+    
+    // Process LeetCode data for charts
+    const leetcodeData = {
+      easy: {
+        count: leetcodeResponse.data.easySolved,
+        submissions: leetcodeResponse.data.easySubmissions
+      },
+      medium: {
+        count: leetcodeResponse.data.mediumSolved,
+        submissions: leetcodeResponse.data.mediumSubmissions
+      },
+      hard: {
+        count: leetcodeResponse.data.hardSolved,
+        submissions: leetcodeResponse.data.hardSubmissions
+      },
+      total: {
+        count: leetcodeResponse.data.totalSolved,
+        submissions: leetcodeResponse.data.totalSubmissions
+      },
+      ranking: leetcodeResponse.data.ranking,
+      profileUrl: `https://leetcode.com/${student.leetcodeUsername}`
+    };
     
     // Fetch Codechef data
     const codechefResponse = await axios.get(`https://codechef-api.vercel.app/${student.codechefUsername}`);
@@ -323,7 +326,7 @@ exports.getRankings = async (req, res) => {
 
     // Update rankings
     student.rankings = {
-      leetcode: leetcodeResponse.data,
+      leetcode: leetcodeData,
       codechef: codechefResponse.data,
       github: githubResponse.data
     };
@@ -344,6 +347,7 @@ exports.getRankings = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Error in getRankings:', error);
     res.status(400).json({
       success: false,
       message: error.message

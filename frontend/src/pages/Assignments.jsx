@@ -28,8 +28,17 @@ const Assignments = () => {
         const token = localStorage.getItem('token');
         console.log('Token:', token ? 'Present' : 'Missing');
         
+        if (!token) {
+          setError('Please login to view assignments');
+          setLoading(false);
+          return;
+        }
+
         const response = await axios.get('http://localhost:5000/api/student/assignments', {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
         
         console.log('Raw response:', response.data);
