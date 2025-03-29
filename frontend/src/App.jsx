@@ -37,147 +37,135 @@ const PrivateRoute = ({ children }) => {
   return user ? children : <Navigate to="/login" />;
 };
 
-const ProtectedRoutes = () => {
-  const { user } = useAuth();
-  
-  return (
-    <Routes>
-      <Route 
-        path="/" 
-        element={
-          <PrivateRoute>
-            {user?.role === 'teacher' ? (
-              <Navigate to="/teacher/dashboard" />
-            ) : (
-              <Navigate to="/dashboard" />
-            )}
-          </PrivateRoute>
-        } 
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <MainLayout>
-              <Dashboard />
-            </MainLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/dsa-profile"
-        element={
-          <PrivateRoute>
-            <MainLayout>
-              <DSAProfile />
-            </MainLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/development"
-        element={
-          <PrivateRoute>
-            <MainLayout>
-              <Development />
-            </MainLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/assignments"
-        element={
-          <PrivateRoute>
-            <MainLayout>
-              <Assignments />
-            </MainLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/rankings"
-        element={
-          <PrivateRoute>
-            <MainLayout>
-              <Rankings />
-            </MainLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/teacher/dashboard"
-        element={
-          <PrivateRoute>
-            <TeacherDashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/teacher/profile"
-        element={
-          <PrivateRoute>
-            <TeacherProfile />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/teacher/dsa-profiles"
-        element={
-          <PrivateRoute>
-            <TeacherDSASubmissions />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/teacher/dev-profiles"
-        element={
-          <PrivateRoute>
-            <TeacherDevProfiles />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/teacher/create-assignment"
-        element={
-          <PrivateRoute>
-            <TeacherCreateAssignment />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/teacher/assignment-status"
-        element={
-          <PrivateRoute>
-            <TeacherAssignmentStatus />
-          </PrivateRoute>
-        }
-      />
-    </Routes>
-  );
-};
-
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
         <Router>
           <Routes>
-            {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            
-            {/* Protected routes */}
-            <Route path="/*" element={<ProtectedRoutes />} />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/dsa-profile"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <DSAProfile />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/development"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <Development />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/assignments"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <Assignments />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/rankings"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <Rankings />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <Profile />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/teacher/dashboard"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <TeacherDashboard />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/teacher/profile"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <TeacherProfile />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/teacher/dsa-submissions"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <TeacherDSASubmissions />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/teacher/dev-profiles"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <TeacherDevProfiles />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/teacher/create-assignment"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <TeacherCreateAssignment />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/teacher/assignment-status"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <TeacherAssignmentStatus />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
         </Router>
       </AuthProvider>
