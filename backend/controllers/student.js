@@ -124,7 +124,7 @@ exports.loginStudent = async (req, res) => {
 // @access  Private
 exports.getProfile = async (req, res) => {
   try {
-    const student = await Student.findById(req.user.userId).select('-password');
+    const student = await Student.findById(req.user.id).select('-password');
 
     if (!student) {
       return res.status(404).json({
@@ -167,7 +167,7 @@ exports.updateProfile = async (req, res) => {
     });
 
     const student = await Student.findByIdAndUpdate(
-      req.user.userId,
+      req.user.id,
       req.body,
       {
         new: true,
@@ -224,15 +224,73 @@ exports.updateProfile = async (req, res) => {
 // @access  Private
 exports.getAssignments = async (req, res) => {
   try {
+    console.log('Getting assignments for student:', req.user.id);
+    
+    // First, check if the student exists
+    const student = await Student.findById(req.user.id);
+    console.log('Found student:', student ? 'Yes' : 'No');
+    if (student) {
+      console.log('Student details:', {
+        id: student._id,
+        name: student.name,
+        email: student.email
+      });
+    }
+    
+    if (!student) {
+      console.log('Student not found');
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    // Get all assignments
+    const allAssignments = await Assignment.find();
+    console.log('Total assignments in database:', allAssignments.length);
+    console.log('All assignments:', allAssignments.map(a => ({
+      id: a._id,
+      name: a.name,
+      assignedTo: a.assignedTo,
+      deadline: a.deadline
+    })));
+    
+    // Get assignments assigned to this student
     const assignments = await Assignment.find({
-      assignedTo: req.user.userId
+      assignedTo: student._id
     });
+    
+    console.log('Assignments found for student:', assignments.length);
+    console.log('Assignment details:', assignments.map(a => ({
+      id: a._id,
+      name: a.name,
+      assignedTo: a.assignedTo,
+      deadline: a.deadline
+    })));
+
+    // If no assignments found, check if there's an issue with the assignedTo field
+    if (assignments.length === 0 && allAssignments.length > 0) {
+      console.log('No assignments found for student but assignments exist in database');
+      console.log('Checking assignedTo field format...');
+      const sampleAssignment = allAssignments[0];
+      console.log('Sample assignment assignedTo:', sampleAssignment.assignedTo);
+      console.log('Student ID type:', typeof student._id);
+      console.log('Student ID:', student._id);
+      console.log('Assignment assignedTo type:', typeof sampleAssignment.assignedTo[0]);
+      console.log('Assignment assignedTo:', sampleAssignment.assignedTo[0]);
+    }
 
     res.status(200).json({
       success: true,
       data: assignments
     });
   } catch (error) {
+    console.error('Error in getAssignments:', error);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
     res.status(400).json({
       success: false,
       message: error.message
@@ -245,7 +303,7 @@ exports.getAssignments = async (req, res) => {
 // @access  Private
 exports.getRankings = async (req, res) => {
   try {
-    const student = await Student.findById(req.user.userId);
+    const student = await Student.findById(req.user.id);
     
     if (!student) {
       return res.status(404).json({

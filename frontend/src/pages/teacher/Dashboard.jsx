@@ -1,6 +1,12 @@
 import { Container, Typography, Grid, Paper, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { CalendarMonth as CalendarIcon } from '@mui/icons-material';
+import CodeIcon from '@mui/icons-material/Code';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -9,6 +15,70 @@ const TeacherDashboard = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
+
+  const cards = [
+    {
+      title: 'DSA Profile',
+      icon: <CodeIcon sx={{ fontSize: 40 }} />,
+      path: '/dsa-profile',
+      color: '#1976d2'
+    },
+    {
+      title: 'Development',
+      icon: <SchoolIcon sx={{ fontSize: 40 }} />,
+      path: '/development',
+      color: '#2e7d32'
+    },
+    {
+      title: 'Assignments',
+      icon: <AssignmentIcon sx={{ fontSize: 40 }} />,
+      path: '/assignments',
+      color: '#ed6c02'
+    },
+    {
+      title: 'Rankings',
+      icon: <LeaderboardIcon sx={{ fontSize: 40 }} />,
+      path: '/rankings',
+      color: '#9c27b0'
+    },
+    {
+      title: 'Profile',
+      icon: <PersonIcon sx={{ fontSize: 40 }} />,
+      path: '/profile',
+      color: '#1976d2'
+    }
+  ];
+
+  const dsaSheets = [
+    {
+      title: "Striver's SDE Sheet",
+      icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
+      path: 'https://takeuforward.org/interviews/strivers-sde-sheet-top-coding-interview-problems/',
+      color: '#1976d2',
+      external: true
+    },
+    {
+      title: "Love Babbar's DSA Sheet",
+      icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
+      path: 'https://www.geeksforgeeks.org/dsa-sheet-by-love-babbar/',
+      color: '#2e7d32',
+      external: true
+    },
+    {
+      title: "Apna College DSA Sheet",
+      icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
+      path: 'https://docs.google.com/spreadsheets/d/1hXserPuxVoWMG9Hs7y8wVdRCJTcj3xMBAEYUOXQ5Xag/edit#gid=0',
+      color: '#ed6c02',
+      external: true
+    },
+    {
+      title: "Neetcode 150",
+      icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
+      path: 'https://neetcode.io/practice',
+      color: '#9c27b0',
+      external: true
+    }
+  ];
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -33,97 +103,80 @@ const TeacherDashboard = () => {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 140,
-              cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: '#f5f5f5',
-              }
-            }}
-            onClick={() => window.open('https://competitiveprogramming.info/calendar', '_blank')}
-          >
-            <Box display="flex" alignItems="center" mb={2}>
-              <CalendarIcon sx={{ mr: 1, color: '#1976d2' }} />
-              <Typography variant="h6">
-                Contest Calendar
+        {cards.map((card) => (
+          <Grid item xs={12} sm={6} md={3} key={card.title}>
+            <Paper
+              sx={{
+                p: 3,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                height: 200,
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  boxShadow: 3
+                }
+              }}
+              onClick={() => navigate(card.path)}
+            >
+              <Box sx={{ color: card.color, mb: 2 }}>
+                {card.icon}
+              </Box>
+              <Typography 
+                variant="h6" 
+                align="center"
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'text.primary'
+                }}
+              >
+                {card.title}
               </Typography>
-            </Box>
-            <Typography variant="body2" color="text.secondary">
-              View upcoming competitive programming contests and competitions
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 140,
-              cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: '#f5f5f5',
-              }
-            }}
-            onClick={() => navigate('/teacher/create-assignment')}
-          >
-            <Typography variant="h6" gutterBottom>
-              Create Assignment
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Create and assign new coding problems to students
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 140,
-              cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: '#f5f5f5',
-              }
-            }}
-            onClick={() => navigate('/teacher/assignment-status')}
-          >
-            <Typography variant="h6" gutterBottom>
-              Assignment Status
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Track student submissions and assignment progress
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 140,
-              cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: '#f5f5f5',
-              }
-            }}
-            onClick={() => navigate('/teacher/rankings')}
-          >
-            <Typography variant="h6" gutterBottom>
-              Rankings
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              View student rankings and performance metrics
-            </Typography>
-          </Paper>
-        </Grid>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Typography variant="h4" gutterBottom sx={{ mt: 6 }}>
+        DSA Sheets
+      </Typography>
+      <Grid container spacing={3}>
+        {dsaSheets.map((sheet) => (
+          <Grid item xs={12} sm={6} md={3} key={sheet.title}>
+            <Paper
+              sx={{
+                p: 3,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                height: 200,
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  boxShadow: 3
+                }
+              }}
+              onClick={() => window.open(sheet.path, '_blank')}
+            >
+              <Box sx={{ color: sheet.color, mb: 2 }}>
+                {sheet.icon}
+              </Box>
+              <Typography 
+                variant="h6" 
+                align="center"
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: 'text.primary'
+                }}
+              >
+                {sheet.title}
+              </Typography>
+            </Paper>
+          </Grid>
+        ))}
       </Grid>
     </Container>
   );

@@ -12,7 +12,7 @@ const assignmentSchema = new mongoose.Schema({
     trim: true
   },
   deadline: {
-    type: String,
+    type: Date,
     required: [true, 'Please add a deadline']
   },
   links: {

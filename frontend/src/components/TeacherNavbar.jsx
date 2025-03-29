@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import {
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+  AppBar,
+  Toolbar,
   IconButton,
-  Typography,
-  Divider
+  Menu,
+  MenuItem,
+  Box,
+  Button
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -24,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const TeacherNavbar = () => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -37,67 +35,56 @@ const TeacherNavbar = () => {
     { text: 'Check Assignment Status', icon: <CheckCircleIcon />, path: '/teacher/assignment-status' }
   ];
 
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    handleClose();
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
   return (
-    <>
-      <IconButton
-        color="inherit"
-        edge="start"
-        onClick={() => setDrawerOpen(true)}
-        sx={{ mr: 2 }}
+    <AppBar position="static" sx={{ backgroundColor: 'transparent', boxShadow: 'none' }}>
+      <Toolbar>
+        <IconButton
+          edge="start"
+          color="primary"
+          aria-label="menu"
+          onClick={handleMenu}
+          sx={{ mr: 2 }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Box sx={{ flexGrow: 1 }} />
+        <Button color="primary" onClick={handleLogout} startIcon={<LogoutIcon />}>
+          Logout
+        </Button>
+      </Toolbar>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
       >
-        <MenuIcon />
-      </IconButton>
-
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        sx={{
-          width: 240,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: 240,
-            boxSizing: 'border-box',
-          },
-        }}
-      >
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h6" noWrap component="div">
-            Teacher Portal
-          </Typography>
-        </Box>
-        <Divider />
-        <List>
-          {menuItems.map((item) => (
-            <ListItem
-              button
-              key={item.text}
-              onClick={() => {
-                navigate(item.path);
-                setDrawerOpen(false);
-              }}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          <ListItem button onClick={handleLogout}>
-            <ListItemIcon>
-              <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText primary="Logout" />
-          </ListItem>
-        </List>
-      </Drawer>
-    </>
+        {menuItems.map((item) => (
+          <MenuItem key={item.text} onClick={() => handleNavigation(item.path)}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {item.icon}
+              {item.text}
+            </Box>
+          </MenuItem>
+        ))}
+      </Menu>
+    </AppBar>
   );
 };
 

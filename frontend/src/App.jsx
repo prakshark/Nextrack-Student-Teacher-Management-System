@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import MainLayout from './layouts/MainLayout';
+import TeacherLayout from './layouts/TeacherLayout';
 
 // Import pages
 import Login from './pages/Login';
@@ -109,9 +110,9 @@ const App = () => {
               path="/teacher/dashboard"
               element={
                 <PrivateRoute>
-                  <MainLayout>
+                  <TeacherLayout>
                     <TeacherDashboard />
-                  </MainLayout>
+                  </TeacherLayout>
                 </PrivateRoute>
               }
             />
@@ -119,19 +120,19 @@ const App = () => {
               path="/teacher/profile"
               element={
                 <PrivateRoute>
-                  <MainLayout>
+                  <TeacherLayout>
                     <TeacherProfile />
-                  </MainLayout>
+                  </TeacherLayout>
                 </PrivateRoute>
               }
             />
             <Route
-              path="/teacher/dsa-submissions"
+              path="/teacher/student-profiles"
               element={
                 <PrivateRoute>
-                  <MainLayout>
+                  <TeacherLayout>
                     <TeacherDSASubmissions />
-                  </MainLayout>
+                  </TeacherLayout>
                 </PrivateRoute>
               }
             />
@@ -139,9 +140,9 @@ const App = () => {
               path="/teacher/dev-profiles"
               element={
                 <PrivateRoute>
-                  <MainLayout>
+                  <TeacherLayout>
                     <TeacherDevProfiles />
-                  </MainLayout>
+                  </TeacherLayout>
                 </PrivateRoute>
               }
             />
@@ -149,9 +150,9 @@ const App = () => {
               path="/teacher/create-assignment"
               element={
                 <PrivateRoute>
-                  <MainLayout>
+                  <TeacherLayout>
                     <TeacherCreateAssignment />
-                  </MainLayout>
+                  </TeacherLayout>
                 </PrivateRoute>
               }
             />
@@ -159,9 +160,9 @@ const App = () => {
               path="/teacher/assignment-status"
               element={
                 <PrivateRoute>
-                  <MainLayout>
+                  <TeacherLayout>
                     <TeacherAssignmentStatus />
-                  </MainLayout>
+                  </TeacherLayout>
                 </PrivateRoute>
               }
             />

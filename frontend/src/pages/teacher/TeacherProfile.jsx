@@ -10,6 +10,7 @@ import {
   Alert
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
+import TeacherNavbar from '../../components/TeacherNavbar';
 
 const TeacherProfile = () => {
   const [error, setError] = useState(null);
@@ -41,81 +42,84 @@ const TeacherProfile = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Teacher Profile
-      </Typography>
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      <Paper sx={{ p: 3 }}>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Box display="flex" justifyContent="flex-end" gap={2}>
-                {isEditing ? (
-                  <>
-                    <Button
-                      variant="outlined"
-                      onClick={() => setIsEditing(false)}
-                    >
-                      Cancel
-                    </Button>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <TeacherNavbar />
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4, flex: 1 }}>
+        <Typography variant="h4" gutterBottom align="center">
+          Teacher Profile
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        <Paper sx={{ p: 3, maxWidth: 600, mx: 'auto' }}>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Box display="flex" justifyContent="center" gap={2}>
+                  {isEditing ? (
+                    <>
+                      <Button
+                        variant="outlined"
+                        onClick={() => setIsEditing(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                      >
+                        Save Changes
+                      </Button>
+                    </>
+                  ) : (
                     <Button
                       variant="contained"
                       color="primary"
-                      type="submit"
+                      onClick={() => setIsEditing(true)}
                     >
-                      Save Changes
+                      Edit Profile
                     </Button>
-                  </>
-                ) : (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    Edit Profile
-                  </Button>
-                )}
-              </Box>
+                  )}
+                </Box>
+              </Grid>
             </Grid>
-          </Grid>
-        </form>
-      </Paper>
-    </Container>
+          </form>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

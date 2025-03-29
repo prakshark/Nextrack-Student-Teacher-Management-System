@@ -15,9 +15,11 @@ import {
   Chip,
   Box,
   TextField,
-  InputAdornment
+  InputAdornment,
+  IconButton,
+  Tooltip
 } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Email as EmailIcon } from '@mui/icons-material';
 import axios from 'axios';
 
 /**

@@ -24,20 +24,33 @@ const Assignments = () => {
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
+        console.log('Fetching assignments...');
         const token = localStorage.getItem('token');
+        console.log('Token:', token ? 'Present' : 'Missing');
+        
         const response = await axios.get('http://localhost:5000/api/student/assignments', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
+        console.log('Raw response:', response.data);
+        
         const assignmentsArray = Array.isArray(response.data) ? response.data : response.data.data || [];
+        console.log('Processed assignments array:', assignmentsArray);
+        
         const sortedAssignments = assignmentsArray.sort((a, b) => {
           return new Date(b.createdAt) - new Date(a.createdAt);
         });
         
+        console.log('Sorted assignments:', sortedAssignments);
         setAssignments(sortedAssignments);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching assignments:', err);
+        console.error('Error details:', {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status
+        });
         setError('Failed to fetch assignments. Please try again later.');
         setLoading(false);
       }
@@ -53,6 +66,9 @@ const Assignments = () => {
   const displayedAssignments = selectedDifficulty === 'all'
     ? assignments
     : assignments.filter(assignment => assignment.difficulty === selectedDifficulty);
+
+  console.log('Current assignments state:', assignments);
+  console.log('Displayed assignments:', displayedAssignments);
 
   if (loading) {
     return (

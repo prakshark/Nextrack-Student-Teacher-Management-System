@@ -39,7 +39,7 @@ const TeacherDashboard = () => {
     {
       title: 'Student Profiles',
       icon: <PeopleIcon sx={{ fontSize: 40 }} />,
-      path: '/teacher/dsa-profiles',
+      path: '/teacher/student-profiles',
       color: '#ed6c02'
     },
     {

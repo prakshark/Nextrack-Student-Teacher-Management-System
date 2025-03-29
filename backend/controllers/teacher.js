@@ -114,37 +114,41 @@ exports.assignAssignment = async (req, res) => {
       });
     }
 
-    console.log('Creating assignment with data:', {
-      name,
-      description,
-      deadline,
-      links: validLinks,
-      difficulty
-    });
+    // Get all students first
+    const students = await Student.find();
+    console.log('Found students:', students.length);
+    console.log('Student details:', students.map(s => ({
+      id: s._id,
+      name: s.name,
+      email: s.email
+    })));
 
-    // Create assignment with explicit field mapping
+    if (students.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No students found to assign the assignment to'
+      });
+    }
+
+    // Create assignment with all students assigned
     const assignmentData = {
       name: name.trim(),
       description: description.trim(),
       deadline: new Date(deadline),
       links: validLinks,
-      difficulty: difficulty
+      difficulty: difficulty,
+      assignedTo: students.map(student => student._id)
     };
 
-    console.log('Final assignment data:', JSON.stringify(assignmentData, null, 2));
+    console.log('Creating assignment with data:', assignmentData);
 
     const assignment = await Assignment.create(assignmentData);
     console.log('Assignment created successfully:', JSON.stringify(assignment, null, 2));
 
-    // Get all students to assign the assignment to
-    const students = await Student.find();
-    console.log('Found students:', students.length);
-    
-    // Update assignment with all students
-    assignment.assignedTo = students.map(student => student._id);
-    await assignment.save();
-
-    console.log('Assignment updated with students');
+    // Verify the assignment was created correctly
+    const createdAssignment = await Assignment.findById(assignment._id)
+      .populate('assignedTo', 'name email');
+    console.log('Verified assignment:', JSON.stringify(createdAssignment, null, 2));
 
     res.status(201).json({
       success: true,
