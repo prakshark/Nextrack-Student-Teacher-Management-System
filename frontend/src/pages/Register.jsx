@@ -29,6 +29,7 @@ const Register = () => {
     linkedinProfileUrl: ''
   });
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const navigate = useNavigate();
   const { register } = useAuth();
 
@@ -38,11 +39,26 @@ const Register = () => {
       ...prev,
       [name]: value
     }));
+
+    // Validate email format
+    if (name === 'email') {
+      if (!value.endsWith('@glbitm.ac.in')) {
+        setEmailError('Email must end with @glbitm.ac.in');
+      } else {
+        setEmailError('');
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validate email before submission
+      if (!formData.email.endsWith('@glbitm.ac.in')) {
+        setError('Please use your GLBITM email address (@glbitm.ac.in)');
+        return;
+      }
+
       await register(formData);
       navigate('/dashboard');
     } catch (err) {
@@ -104,6 +120,8 @@ const Register = () => {
             autoComplete="email"
             value={formData.email}
             onChange={handleChange}
+            error={!!emailError}
+            helperText={emailError}
           />
           <TextField
             margin="normal"

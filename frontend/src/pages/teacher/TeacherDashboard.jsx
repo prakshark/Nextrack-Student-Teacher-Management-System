@@ -1,5 +1,5 @@
 import { Container, Typography, Grid, Paper, Box, Button } from '@mui/material';
-import { Logout as LogoutIcon } from '@mui/icons-material';
+import { Logout as LogoutIcon, CalendarMonth as CalendarIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -17,6 +17,13 @@ const TeacherDashboard = () => {
   };
 
   const cards = [
+    {
+      title: 'Contest Calendar',
+      icon: <CalendarIcon sx={{ fontSize: 40 }} />,
+      path: 'https://competitiveprogramming.info/calendar',
+      color: '#1976d2',
+      external: true
+    },
     {
       title: 'Create Assignment',
       icon: <AssignmentIcon sx={{ fontSize: 40 }} />,
@@ -75,7 +82,7 @@ const TeacherDashboard = () => {
                   boxShadow: 3
                 }
               }}
-              onClick={() => navigate(card.path)}
+              onClick={() => card.external ? window.open(card.path, '_blank') : navigate(card.path)}
             >
               <Box sx={{ color: card.color, mb: 2 }}>
                 {card.icon}

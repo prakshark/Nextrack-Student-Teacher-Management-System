@@ -12,8 +12,8 @@ const studentSchema = new mongoose.Schema({
     required: [true, 'Please add an email'],
     unique: true,
     match: [
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      'Please add a valid email address'
+      /^[a-zA-Z0-9._%+-]+@glbitm\.ac\.in$/,
+      'Please add a valid GLBITM email address'
     ]
   },
   password: {

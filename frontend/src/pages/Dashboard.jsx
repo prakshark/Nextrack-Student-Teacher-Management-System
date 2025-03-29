@@ -6,13 +6,15 @@ import {
   Card,
   CardContent,
   Typography,
-  useTheme
+  useTheme,
+  Paper
 } from '@mui/material';
 import {
   Code as CodeIcon,
   Computer as ComputerIcon,
   Assignment as AssignmentIcon,
-  EmojiEvents as EmojiEventsIcon
+  EmojiEvents as EmojiEventsIcon,
+  CalendarMonth as CalendarIcon
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -45,11 +47,39 @@ const Dashboard = () => {
       icon: <EmojiEventsIcon sx={{ fontSize: 40 }} />,
       path: '/rankings',
       color: theme.palette.warning.main
+    },
+    {
+      title: 'Contest Calendar',
+      icon: <CalendarIcon sx={{ fontSize: 40 }} />,
+      path: 'https://competitiveprogramming.info/calendar',
+      color: theme.palette.info.main,
+      external: true
     }
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Box display="flex" justifyContent="flex-end" mb={4}>
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Logout
+        </button>
+      </Box>
+
       <Typography variant="h4" gutterBottom>
         Welcome, {user?.name || 'Student'}!
       </Typography>
@@ -69,7 +99,7 @@ const Dashboard = () => {
                   transform: 'scale(1.02)'
                 }
               }}
-              onClick={() => navigate(card.path)}
+              onClick={() => card.external ? window.open(card.path, '_blank') : navigate(card.path)}
             >
               <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
                 <Box sx={{ color: card.color, mb: 2 }}>
