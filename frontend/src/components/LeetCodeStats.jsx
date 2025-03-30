@@ -31,23 +31,18 @@ const LeetCodeStats = ({ data }) => {
   const chartData = [
     {
       name: 'Easy',
-      solved: data.easy.count,
-      submissions: data.easy.submissions
+      solved: data.easy?.count || 0,
+      submissions: data.easy?.submissions || 0
     },
     {
       name: 'Medium',
-      solved: data.medium.count,
-      submissions: data.medium.submissions
+      solved: data.medium?.count || 0,
+      submissions: data.medium?.submissions || 0
     },
     {
       name: 'Hard',
-      solved: data.hard.count,
-      submissions: data.hard.submissions
-    },
-    {
-      name: 'Total',
-      solved: data.total.count,
-      submissions: data.total.submissions
+      solved: data.hard?.count || 0,
+      submissions: data.hard?.submissions || 0
     }
   ];
 
@@ -57,14 +52,16 @@ const LeetCodeStats = ({ data }) => {
         <Typography variant="h5" component="h2">
           LeetCode Statistics
         </Typography>
-        <Link
-          href={data.profileUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={{ textDecoration: 'none' }}
-        >
-          View Profile
-        </Link>
+        {data.profileUrl && (
+          <Link
+            href={data.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ textDecoration: 'none' }}
+          >
+            View Profile
+          </Link>
+        )}
       </Box>
 
       <Grid container spacing={3}>
@@ -98,7 +95,7 @@ const LeetCodeStats = ({ data }) => {
               Current Ranking
             </Typography>
             <Typography variant="h3" color="primary">
-              #{data.ranking}
+              {data.ranking ? `#${data.ranking}` : 'N/A'}
             </Typography>
           </Box>
           <Box mt={3}>
@@ -106,19 +103,19 @@ const LeetCodeStats = ({ data }) => {
               Summary
             </Typography>
             <Typography variant="body1">
-              Total Solved: {data.total.count}
+              Total Solved: {String(data.total?.count || 0)}
             </Typography>
             <Typography variant="body1">
-              Total Submissions: {data.total.submissions}
+              Total Submissions: {String(data.total?.submissions || 0)}
             </Typography>
             <Typography variant="body1">
-              Easy: {data.easy.count} ({data.easy.submissions} submissions)
+              Easy: {String(data.easy?.count || 0)} ({String(data.easy?.submissions || 0)} submissions)
             </Typography>
             <Typography variant="body1">
-              Medium: {data.medium.count} ({data.medium.submissions} submissions)
+              Medium: {String(data.medium?.count || 0)} ({String(data.medium?.submissions || 0)} submissions)
             </Typography>
             <Typography variant="body1">
-              Hard: {data.hard.count} ({data.hard.submissions} submissions)
+              Hard: {String(data.hard?.count || 0)} ({String(data.hard?.submissions || 0)} submissions)
             </Typography>
           </Box>
         </Grid>

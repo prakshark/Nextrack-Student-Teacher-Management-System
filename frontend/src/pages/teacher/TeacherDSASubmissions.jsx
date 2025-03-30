@@ -48,7 +48,32 @@ const TeacherDSASubmissions = () => {
         const response = await axios.get('http://localhost:5000/api/teacher/student-details', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-        setStudents(response.data.data);
+        
+        // Fetch LeetCode stats for each student
+        const studentsWithStats = await Promise.all(
+          response.data.data.map(async (student) => {
+            if (student.leetcodeUsername) {
+              try {
+                const statsResponse = await axios.get(`http://localhost:5000/api/student/rankings/${student._id}`, {
+                  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
+                return {
+                  ...student,
+                  leetcodeStats: statsResponse.data.data.leetcode
+                };
+              } catch (err) {
+                console.error(`Error fetching LeetCode stats for ${student.name}:`, err);
+                return {
+                  ...student,
+                  leetcodeStats: null
+                };
+              }
+            }
+            return student;
+          })
+        );
+        
+        setStudents(studentsWithStats);
       } catch (err) {
         console.error('Error fetching students:', err);
         setError(err.response?.data?.message || 'Failed to fetch student details');
@@ -89,7 +114,7 @@ const TeacherDSASubmissions = () => {
           Student DSA Profiles
         </Typography>
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          View and manage student DSA profiles including LeetCode and CodeChef information
+          View and manage student DSA profiles including LeetCode and CodeChef statistics
         </Typography>
       </Box>
 
@@ -127,6 +152,7 @@ const TeacherDSASubmissions = () => {
               <TableCell>Email</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>LeetCode Profile</TableCell>
+              <TableCell>LeetCode Stats</TableCell>
               <TableCell>CodeChef Profile</TableCell>
               <TableCell>Status</TableCell>
             </TableRow>
@@ -149,6 +175,27 @@ const TeacherDSASubmissions = () => {
                     </Link>
                   ) : (
                     <Chip label="Not Added" color="error" size="small" />
+                  )}
+                </TableCell>
+                <TableCell>
+                  {student.leetcodeStats ? (
+                    <Box>
+                      <Typography variant="body2">
+                        Ranking: #{student.leetcodeStats.ranking || 'N/A'}
+                      </Typography>
+                      <Typography variant="body2">
+                        Total Solved: {student.leetcodeStats.total?.count || 0}
+                      </Typography>
+                      <Typography variant="body2">
+                        Easy: {student.leetcodeStats.easy?.count || 0}
+                        {' | '}
+                        Medium: {student.leetcodeStats.medium?.count || 0}
+                        {' | '}
+                        Hard: {student.leetcodeStats.hard?.count || 0}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Chip label="No Stats" color="warning" size="small" />
                   )}
                 </TableCell>
                 <TableCell>

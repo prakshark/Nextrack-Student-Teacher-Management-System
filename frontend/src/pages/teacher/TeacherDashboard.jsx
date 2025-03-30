@@ -1,20 +1,13 @@
-import { Container, Typography, Grid, Paper, Box, Button } from '@mui/material';
-import { Logout as LogoutIcon, CalendarMonth as CalendarIcon } from '@mui/icons-material';
+import { Container, Typography, Grid, Paper, Box } from '@mui/material';
+import { CalendarMonth as CalendarIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import PeopleIcon from '@mui/icons-material/People';
-import PersonIcon from '@mui/icons-material/Person';
+import ComputerIcon from '@mui/icons-material/Computer';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const cards = [
     {
@@ -37,31 +30,21 @@ const TeacherDashboard = () => {
       color: '#2e7d32'
     },
     {
-      title: 'Student Profiles',
+      title: 'Student DSA Profiles',
       icon: <PeopleIcon sx={{ fontSize: 40 }} />,
       path: '/teacher/student-profiles',
       color: '#ed6c02'
     },
     {
-      title: 'My Profile',
-      icon: <PersonIcon sx={{ fontSize: 40 }} />,
-      path: '/teacher/profile',
+      title: 'Student Development Profiles',
+      icon: <ComputerIcon sx={{ fontSize: 40 }} />,
+      path: '/teacher/dev-profiles',
       color: '#9c27b0'
     }
   ];
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-        <Button
-          variant="outlined"
-          color="error"
-          startIcon={<LogoutIcon />}
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
-      </Box>
       <Typography variant="h4" gutterBottom>
         Teacher Dashboard
       </Typography>

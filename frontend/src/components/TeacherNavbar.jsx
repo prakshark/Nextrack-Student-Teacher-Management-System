@@ -29,7 +29,7 @@ const TeacherNavbar = () => {
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/teacher/dashboard' },
     { text: 'Profile', icon: <PersonIcon />, path: '/teacher/profile' },
-    { text: 'Student DSA Profiles', icon: <CodeIcon />, path: '/teacher/dsa-profiles' },
+    { text: 'Student DSA Profiles', icon: <CodeIcon />, path: '/teacher/student-profiles' },
     { text: 'Student Development Profiles', icon: <ComputerIcon />, path: '/teacher/dev-profiles' },
     { text: 'Create Assignment', icon: <AssignmentIcon />, path: '/teacher/create-assignment' },
     { text: 'Check Assignment Status', icon: <CheckCircleIcon />, path: '/teacher/assignment-status' }

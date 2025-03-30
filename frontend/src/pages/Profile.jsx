@@ -15,13 +15,11 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import LeetCodeStats from '../components/LeetCodeStats';
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [leetcodeStats, setLeetcodeStats] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -58,14 +56,6 @@ const Profile = () => {
           course: response.data.data.course || '',
           yearOfStudy: response.data.data.yearOfStudy || ''
         });
-
-        // Fetch LeetCode stats
-        if (response.data.data.leetcodeUsername) {
-          const rankingsResponse = await axios.get('http://localhost:5000/api/student/rankings', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          });
-          setLeetcodeStats(rankingsResponse.data.data.leetcode);
-        }
       } catch (err) {
         console.error('Profile page - Error fetching profile:', err);
         setError(err.response?.data?.message || 'Failed to fetch profile');
@@ -331,9 +321,6 @@ const Profile = () => {
           </form>
         </CardContent>
       </Card>
-
-      {/* LeetCode Statistics */}
-      {leetcodeStats && <LeetCodeStats data={leetcodeStats} />}
     </Container>
   );
 };
