@@ -23,39 +23,64 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Orbitron", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Ubuntu", sans-serif',
     h1: {
+      fontFamily: '"Ubuntu", sans-serif',
       fontWeight: 700,
       textTransform: 'uppercase',
       letterSpacing: '2px',
     },
     h2: {
+      fontFamily: '"Ubuntu", sans-serif',
       fontWeight: 600,
       textTransform: 'uppercase',
       letterSpacing: '1px',
     },
     h3: {
+      fontFamily: '"Ubuntu", sans-serif',
       fontWeight: 600,
       textTransform: 'uppercase',
       letterSpacing: '1px',
     },
     h4: {
+      fontFamily: '"Ubuntu", sans-serif',
       fontWeight: 600,
       textTransform: 'uppercase',
       letterSpacing: '1px',
     },
     h5: {
+      fontFamily: '"Ubuntu", sans-serif',
       fontWeight: 600,
       textTransform: 'uppercase',
       letterSpacing: '1px',
     },
     h6: {
+      fontFamily: '"Ubuntu", sans-serif',
       fontWeight: 600,
       textTransform: 'uppercase',
       letterSpacing: '1px',
     },
+    button: {
+      fontFamily: '"Ubuntu", sans-serif',
+      fontWeight: 500,
+    },
+    body1: {
+      fontFamily: '"Ubuntu", sans-serif',
+      fontWeight: 400,
+    },
+    body2: {
+      fontFamily: '"Ubuntu", sans-serif',
+      fontWeight: 400,
+    },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          fontFamily: '"Ubuntu", sans-serif',
+        },
+      },
+    },
     MuiCard: {
       styleOverrides: {
         root: {
@@ -74,6 +99,7 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
+          fontFamily: '"Ubuntu", sans-serif',
           borderRadius: '8px',
           textTransform: 'uppercase',
           fontWeight: 600,
