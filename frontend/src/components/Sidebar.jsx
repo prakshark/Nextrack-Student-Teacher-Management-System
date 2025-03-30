@@ -21,6 +21,7 @@ import {
   EventAvailable as EventAvailableIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import logo from '../media/logo-glbitm.jpg';
 
 const drawerWidth = 240;
 
@@ -47,8 +48,33 @@ const Sidebar = () => {
 
   const drawer = (
     <Box>
-      <Box sx={{ p: 2 }}>
-        <SchoolIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+      <Box 
+        sx={{ 
+          p: 2, 
+          display: 'flex', 
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'background.paper'
+        }}
+      >
+        <Box
+          component="img"
+          src={logo}
+          alt="GL Bajaj Logo"
+          sx={{
+            height: { xs: 50, sm: 60 },
+            width: 'auto',
+            cursor: 'pointer',
+            transition: 'transform 0.2s',
+            '&:hover': {
+              transform: 'scale(1.05)'
+            }
+          }}
+          onClick={() => {
+            navigate('/');
+            if (isMobile) handleDrawerToggle();
+          }}
+        />
       </Box>
       <Divider />
       <List>

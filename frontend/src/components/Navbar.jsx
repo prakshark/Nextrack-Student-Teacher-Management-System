@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import logo from '../media/logo-glbitm.jpg';
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -41,6 +42,24 @@ const Navbar = () => {
         >
           <MenuIcon />
         </IconButton>
+
+        <Box 
+          component="img"
+          src={logo}
+          alt="GL Bajaj Logo"
+          sx={{ 
+            height: { xs: 35, sm: 40 },
+            width: 'auto',
+            mr: 2,
+            cursor: 'pointer',
+            transition: 'transform 0.2s',
+            '&:hover': {
+              transform: 'scale(1.05)'
+            }
+          }}
+          onClick={() => navigate('/')}
+        />
+
         <Typography 
           variant="h6" 
           noWrap 
