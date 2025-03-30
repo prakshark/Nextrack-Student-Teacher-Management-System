@@ -13,7 +13,9 @@ import {
   CircularProgress,
   Alert,
   Checkbox,
-  FormControlLabel
+  FormControlLabel,
+  Stack,
+  Chip
 } from '@mui/material';
 import axios from 'axios';
 
@@ -56,7 +58,9 @@ const Assignments = () => {
         console.log('Raw completed assignments response:', completedRes.data);
         
         const assignmentsArray = Array.isArray(assignmentsRes.data) ? assignmentsRes.data : assignmentsRes.data.data || [];
-        const completedArray = completedRes.data.data.map(ca => ca.assignment._id);
+        const completedArray = completedRes.data.data
+          .filter(ca => ca && ca.assignment)
+          .map(ca => ca.assignment._id);
         
         console.log('Processed assignments array:', assignmentsArray);
         console.log('Processed completed array:', completedArray);
@@ -114,6 +118,19 @@ const Assignments = () => {
     ? assignments
     : assignments.filter(assignment => assignment.difficulty === selectedDifficulty);
 
+  const getDifficultyColor = (difficulty) => {
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        return '#335C67';
+      case 'medium':
+        return '#E09F3E';
+      case 'hard':
+        return '#9E2A2B';
+      default:
+        return '#335C67';
+    }
+  };
+
   if (loading) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -161,40 +178,55 @@ const Assignments = () => {
             <Grid item xs={12} key={assignment._id}>
               <Card>
                 <CardContent>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="h6" gutterBottom>
+                  <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                    <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
                       {assignment.name}
                     </Typography>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={completedAssignments.includes(assignment._id)}
-                          onChange={(e) => handleAssignmentCompletion(assignment._id, e.target.checked)}
-                          color="success"
-                        />
-                      }
-                      label="Completed"
-                    />
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <Chip
+                        label={assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
+                        size="small"
+                        sx={{
+                          backgroundColor: getDifficultyColor(assignment.difficulty),
+                          color: '#FFF3B0',
+                          fontWeight: 600
+                        }}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={completedAssignments.includes(assignment._id)}
+                            onChange={(e) => handleAssignmentCompletion(assignment._id, e.target.checked)}
+                            color="success"
+                          />
+                        }
+                        label="Completed"
+                      />
+                    </Box>
                   </Box>
                   <Typography color="text.secondary" gutterBottom>
                     Due: {new Date(assignment.deadline).toLocaleString()}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Difficulty: {assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
-                  </Typography>
                   <Typography variant="body1" paragraph>
                     {assignment.description}
                   </Typography>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Question Links:
-                  </Typography>
-                  {assignment.links.map((link, index) => (
-                    <Typography key={index} variant="body2" color="primary">
-                      <a href={link} target="_blank" rel="noopener noreferrer">
-                        Question {index + 1}
-                      </a>
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                      Question Links:
                     </Typography>
-                  ))}
+                    {assignment.links.map((link, index) => (
+                      <Typography key={index} variant="body2" color="primary">
+                        <a 
+                          href={link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ color: '#335C67' }}
+                        >
+                          Question {index + 1}
+                        </a>
+                      </Typography>
+                    ))}
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
