@@ -16,7 +16,10 @@ import {
   Assignment as AssignmentIcon,
   CheckCircle as CheckCircleIcon,
   Computer as ComputerIcon,
-  Logout as LogoutIcon
+  Logout as LogoutIcon,
+  Assessment as AssessmentIcon,
+  EventAvailable as EventAvailableIcon,
+  TableChart as TableChartIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -29,6 +32,9 @@ const TeacherNavbar = () => {
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/teacher/dashboard' },
     { text: 'Profile', icon: <PersonIcon />, path: '/teacher/profile' },
+    { text: 'Student Performance Report', icon: <AssessmentIcon />, path: '/teacher/performance-report' },
+    { text: 'Attendance', icon: <EventAvailableIcon />, path: '/teacher/attendance' },
+    { text: 'Generate Insights', icon: <TableChartIcon />, path: '/teacher/excel-insights' },
     { text: 'Student DSA Profiles', icon: <CodeIcon />, path: '/teacher/student-profiles' },
     { text: 'Student Development Profiles', icon: <ComputerIcon />, path: '/teacher/dev-profiles' },
     { text: 'Create Assignment', icon: <AssignmentIcon />, path: '/teacher/create-assignment' },

@@ -176,30 +176,30 @@ exports.assignAssignment = async (req, res) => {
 // @access  Private
 exports.getRankings = async (req, res) => {
   try {
-    const students = await Student.find().select('name rankings');
+    const students = await Student.find().select('name leetcodeUsername codechefUsername githubUsername rankings');
     
     // Fetch latest data for each student
     for (let student of students) {
       try {
         // Fetch Leetcode data
-        const leetcodeUsername = student.leetcodeProfileUrl.split('/').pop();
-        const leetcodeResponse = await axios.get(`https://alfa-leetcode-api.onrender.com/${leetcodeUsername}`);
+        if (student.leetcodeUsername) {
+          const leetcodeResponse = await axios.get(`https://alfa-leetcode-api.onrender.com/${student.leetcodeUsername}`);
+          student.rankings.leetcode = leetcodeResponse.data;
+        }
         
         // Fetch Codechef data
-        const codechefUsername = student.codechefProfileUrl.split('/').pop();
-        const codechefResponse = await axios.get(`https://codechef-api.vercel.app/${codechefUsername}`);
+        if (student.codechefUsername) {
+          const codechefResponse = await axios.get(`https://codechef-api.vercel.app/${student.codechefUsername}`);
+          student.rankings.codechef = codechefResponse.data;
+        }
         
         // Fetch GitHub data
-        const githubUsername = student.githubProfileUrl.split('/').pop();
-        const githubResponse = await axios.get(`https://api.github.com/users/${githubUsername}`);
+        if (student.githubUsername) {
+          const githubResponse = await axios.get(`https://api.github.com/users/${student.githubUsername}`);
+          student.rankings.github = githubResponse.data;
+        }
 
-        // Update rankings
-        student.rankings = {
-          leetcode: leetcodeResponse.data,
-          codechef: codechefResponse.data,
-          github: githubResponse.data
-        };
-
+        // Save the updated rankings
         await student.save();
       } catch (error) {
         console.error(`Error fetching data for student ${student.name}:`, error.message);
@@ -208,13 +208,10 @@ exports.getRankings = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: students.map(student => ({
-        name: student.name,
-        rankings: student.rankings
-      }))
+      data: students
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
       message: error.message
     });
@@ -370,38 +367,108 @@ exports.getAssignmentStatus = async (req, res) => {
 // @access  Private
 exports.getStudentPerformance = async (req, res) => {
   try {
-    // Get all students with their profile data
-    const students = await Student.find().select('name email leetcodeProfileUrl codechefProfileUrl githubProfileUrl rankings completedAssignments');
+    // Get all students with their profile data and populate completedAssignments
+    const students = await Student.find()
+      .select('name email leetcodeUsername codechefUsername githubUsername rankings completedAssignments')
+      .populate({
+        path: 'completedAssignments.assignment',
+        select: 'difficulty'
+      });
 
-    // For each student, calculate the number of completed assignments by difficulty
+    // For each student, fetch latest platform data and calculate assignments
     const studentsWithStats = await Promise.all(students.map(async (student) => {
-      // Get all assignments completed by the student
-      const assignments = await Assignment.find({
-        _id: { $in: student.completedAssignments.map(ca => ca.assignment) }
-      });
+      try {
+        // Fetch latest LeetCode data
+        if (student.leetcodeUsername) {
+          const leetcodeResponse = await axios.get(`https://alfa-leetcode-api.onrender.com/${student.leetcodeUsername}`);
+          const leetcodeData = leetcodeResponse.data;
+          
+          // Map the LeetCode data to our structure using totalSubmissions array
+          const easySubmission = leetcodeData.totalSubmissions?.find(x => x.difficulty === 'Easy');
+          const mediumSubmission = leetcodeData.totalSubmissions?.find(x => x.difficulty === 'Medium');
+          const hardSubmission = leetcodeData.totalSubmissions?.find(x => x.difficulty === 'Hard');
 
-      // Count assignments by difficulty
-      const completedByDifficulty = {
-        easy: 0,
-        medium: 0,
-        hard: 0
-      };
+          student.rankings.leetcode = {
+            totalSolved: leetcodeData.totalSolved || 0,
+            easySolved: leetcodeData.easySolved || 0,
+            mediumSolved: leetcodeData.mediumSolved || 0,
+            hardSolved: leetcodeData.hardSolved || 0,
+            ranking: leetcodeData.ranking || 'N/A',
+            totalQuestions: leetcodeData.totalQuestions || 0,
+            totalEasy: leetcodeData.totalEasy || 0,
+            totalMedium: leetcodeData.totalMedium || 0,
+            totalHard: leetcodeData.totalHard || 0,
+            submissions: {
+              easy: easySubmission?.submissions || 0,
+              medium: mediumSubmission?.submissions || 0,
+              hard: hardSubmission?.submissions || 0
+            }
+          };
+          
+          await student.save(); // Save the updated rankings
+        }
 
-      assignments.forEach(assignment => {
-        completedByDifficulty[assignment.difficulty.toLowerCase()]++;
-      });
+        // Fetch latest CodeChef data
+        if (student.codechefUsername) {
+          const codechefResponse = await axios.get(`https://codechef-api.vercel.app/${student.codechefUsername}`);
+          student.rankings.codechef = codechefResponse.data;
+          await student.save(); // Save the updated rankings
+        }
 
-      // Return student data with assignment counts
-      return {
-        _id: student._id,
-        name: student.name,
-        email: student.email,
-        leetcodeProfileUrl: student.leetcodeProfileUrl,
-        codechefProfileUrl: student.codechefProfileUrl,
-        githubProfileUrl: student.githubProfileUrl,
-        rankings: student.rankings,
-        completedAssignments: completedByDifficulty
-      };
+        // Calculate completed assignments by difficulty
+        const completedByDifficulty = {
+          easy: 0,
+          medium: 0,
+          hard: 0
+        };
+
+        // Count completed assignments by difficulty
+        if (student.completedAssignments && Array.isArray(student.completedAssignments)) {
+          student.completedAssignments.forEach(completed => {
+            if (completed.assignment && completed.assignment.difficulty) {
+              const difficulty = completed.assignment.difficulty.toLowerCase();
+              if (completedByDifficulty.hasOwnProperty(difficulty)) {
+                completedByDifficulty[difficulty]++;
+              }
+            }
+          });
+        }
+
+        // Log the data for debugging
+        console.log(`Student ${student.name} completed assignments:`, completedByDifficulty);
+
+        // Return student data with assignment counts and latest platform data
+        return {
+          _id: student._id,
+          name: student.name,
+          email: student.email,
+          leetcodeUsername: student.leetcodeUsername,
+          codechefUsername: student.codechefUsername,
+          githubUsername: student.githubUsername,
+          rankings: student.rankings,
+          completedAssignments: completedByDifficulty
+        };
+      } catch (error) {
+        console.error(`Error processing student ${student.name}:`, error.message);
+        if (error.response) {
+          console.error('API Response:', error.response.data);
+        }
+        // Return student data without updated platform data if there's an error
+        return {
+          _id: student._id,
+          name: student.name,
+          email: student.email,
+          leetcodeUsername: student.leetcodeUsername,
+          codechefUsername: student.codechefUsername,
+          githubUsername: student.githubUsername,
+          rankings: student.rankings,
+          completedAssignments: {
+            easy: 0,
+            medium: 0,
+            hard: 0
+          }
+        };
+      }
     }));
 
     res.json({

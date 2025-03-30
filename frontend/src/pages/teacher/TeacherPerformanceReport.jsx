@@ -61,16 +61,8 @@ const TeacherPerformanceReport = () => {
     const excelData = students.map(student => ({
       'Name': student.name,
       'Email': student.email,
-      'LeetCode Easy Solved': student.rankings?.leetcode?.easySolved || 0,
-      'LeetCode Medium Solved': student.rankings?.leetcode?.mediumSolved || 0,
-      'LeetCode Hard Solved': student.rankings?.leetcode?.hardSolved || 0,
-      'LeetCode Total Solved': student.rankings?.leetcode?.totalSolved || 0,
       'LeetCode Ranking': student.rankings?.leetcode?.ranking || 'N/A',
-      'CodeChef Global Rank': student.rankings?.codechef?.globalRank || 'N/A',
-      'CodeChef Country Rank': student.rankings?.codechef?.countryRank || 'N/A',
       'CodeChef Highest Rating': student.rankings?.codechef?.highestRating || 'N/A',
-      'CodeChef Current Rating': student.rankings?.codechef?.rating || 'N/A',
-      'CodeChef Stars': student.rankings?.codechef?.stars || 'N/A',
       'Assignments Completed (Easy)': student.completedAssignments?.easy || 0,
       'Assignments Completed (Medium)': student.completedAssignments?.medium || 0,
       'Assignments Completed (Hard)': student.completedAssignments?.hard || 0
@@ -147,27 +139,13 @@ const TeacherPerformanceReport = () => {
           overflow: 'auto'
         }}
       >
-        <Table stickyHeader sx={{ minWidth: 2000 }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell sx={{ minWidth: 150, position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 1000 }}>Name</TableCell>
               <TableCell sx={{ minWidth: 200, position: 'sticky', left: 150, backgroundColor: 'white', zIndex: 1000 }}>Email</TableCell>
-              
-              {/* LeetCode Stats */}
-              <TableCell sx={{ minWidth: 150 }}>LeetCode Easy Solved</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>LeetCode Medium Solved</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>LeetCode Hard Solved</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>LeetCode Total Solved</TableCell>
               <TableCell sx={{ minWidth: 150 }}>LeetCode Ranking</TableCell>
-
-              {/* CodeChef Stats */}
-              <TableCell sx={{ minWidth: 150 }}>CodeChef Global Rank</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>CodeChef Country Rank</TableCell>
               <TableCell sx={{ minWidth: 150 }}>CodeChef Highest Rating</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>CodeChef Current Rating</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>CodeChef Stars</TableCell>
-
-              {/* Assignment Stats */}
               <TableCell sx={{ minWidth: 150 }}>Assignments (Easy)</TableCell>
               <TableCell sx={{ minWidth: 150 }}>Assignments (Medium)</TableCell>
               <TableCell sx={{ minWidth: 150 }}>Assignments (Hard)</TableCell>
@@ -182,22 +160,8 @@ const TeacherPerformanceReport = () => {
                 <TableCell sx={{ position: 'sticky', left: 150, backgroundColor: 'white', zIndex: 900 }}>
                   {student.email}
                 </TableCell>
-
-                {/* LeetCode Stats */}
-                <TableCell>{student.rankings?.leetcode?.easySolved || 0}</TableCell>
-                <TableCell>{student.rankings?.leetcode?.mediumSolved || 0}</TableCell>
-                <TableCell>{student.rankings?.leetcode?.hardSolved || 0}</TableCell>
-                <TableCell>{student.rankings?.leetcode?.totalSolved || 0}</TableCell>
                 <TableCell>{student.rankings?.leetcode?.ranking || 'N/A'}</TableCell>
-
-                {/* CodeChef Stats */}
-                <TableCell>{student.rankings?.codechef?.globalRank || 'N/A'}</TableCell>
-                <TableCell>{student.rankings?.codechef?.countryRank || 'N/A'}</TableCell>
                 <TableCell>{student.rankings?.codechef?.highestRating || 'N/A'}</TableCell>
-                <TableCell>{student.rankings?.codechef?.rating || 'N/A'}</TableCell>
-                <TableCell>{student.rankings?.codechef?.stars || 'N/A'}</TableCell>
-
-                {/* Assignment Stats */}
                 <TableCell>{student.completedAssignments?.easy || 0}</TableCell>
                 <TableCell>{student.completedAssignments?.medium || 0}</TableCell>
                 <TableCell>{student.completedAssignments?.hard || 0}</TableCell>
