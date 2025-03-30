@@ -25,6 +25,7 @@ const TeacherPerformanceReport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [totalAssignments, setTotalAssignments] = useState({ easy: 0, medium: 0, hard: 0 });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +36,23 @@ const TeacherPerformanceReport = () => {
           setLoading(false);
           return;
         }
+
+        // Fetch all assignments to get total counts
+        const assignmentsResponse = await axios.get('http://localhost:5000/api/teacher/assignments', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // Calculate total assignments by difficulty
+        const counts = assignmentsResponse.data.data.reduce((acc, assignment) => {
+          const difficulty = assignment.difficulty.toLowerCase();
+          acc[difficulty] = (acc[difficulty] || 0) + 1;
+          return acc;
+        }, { easy: 0, medium: 0, hard: 0 });
+
+        setTotalAssignments(counts);
 
         // Fetch all students with their performance data
         const response = await axios.get('http://localhost:5000/api/teacher/student-performance', {
@@ -146,9 +164,9 @@ const TeacherPerformanceReport = () => {
               <TableCell sx={{ minWidth: 200, position: 'sticky', left: 150, backgroundColor: 'white', zIndex: 1000 }}>Email</TableCell>
               <TableCell sx={{ minWidth: 150 }}>LeetCode Ranking</TableCell>
               <TableCell sx={{ minWidth: 150 }}>CodeChef Highest Rating</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>Assignments (Easy)</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>Assignments (Medium)</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>Assignments (Hard)</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>Assignments (Easy) ({totalAssignments.easy} total)</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>Assignments (Medium) ({totalAssignments.medium} total)</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>Assignments (Hard) ({totalAssignments.hard} total)</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

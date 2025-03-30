@@ -7,7 +7,8 @@ import {
   Menu,
   MenuItem,
   Box,
-  Avatar
+  Avatar,
+  Divider
 } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +26,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    // Add logout logic here
+    localStorage.removeItem('token');
     handleClose();
     navigate('/login');
   };
@@ -40,9 +41,16 @@ const Navbar = () => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+        <Typography 
+          variant="h6" 
+          noWrap 
+          component="div" 
+          sx={{ flexGrow: 1, cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+        >
           GLB Topcoders
         </Typography>
+
         <Box>
           <IconButton
             onClick={handleMenu}
@@ -66,6 +74,7 @@ const Navbar = () => {
             <MenuItem onClick={() => { handleClose(); navigate('/profile'); }}>
               Profile
             </MenuItem>
+            <Divider />
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Box>
