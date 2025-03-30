@@ -82,6 +82,14 @@ const TeacherAttendance = () => {
     fetchData();
   }, []);
 
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const formatDateForAPI = (date) => {
     const d = new Date(date);
     // Set time to noon to avoid timezone issues
@@ -129,7 +137,7 @@ const TeacherAttendance = () => {
 
   const handleDownloadExcel = () => {
     // Create headers with dates
-    const headers = ['Name', 'Email', ...dates.map(date => date.toLocaleDateString())];
+    const headers = ['Name', 'Email', ...dates.map(date => formatDate(date))];
 
     // Prepare data for each student
     const data = filteredStudents.map(student => {
@@ -276,7 +284,7 @@ const TeacherAttendance = () => {
                     backgroundColor: date.toDateString() === new Date().toDateString() ? '#e3f2fd' : 'white'
                   }}
                 >
-                  {date.toLocaleDateString()}
+                  {formatDate(date)}
                 </TableCell>
               ))}
             </TableRow>
