@@ -5,6 +5,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import PeopleIcon from '@mui/icons-material/People';
 import ComputerIcon from '@mui/icons-material/Computer';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -40,6 +41,12 @@ const TeacherDashboard = () => {
       icon: <ComputerIcon sx={{ fontSize: 40 }} />,
       path: '/teacher/dev-profiles',
       color: '#9c27b0'
+    },
+    {
+      title: 'Student Performance Report',
+      icon: <AssessmentIcon sx={{ fontSize: 40 }} />,
+      path: '/teacher/performance-report',
+      color: '#d32f2f'
     }
   ];
 

@@ -9,7 +9,8 @@ const {
   getStudentDetails,
   getAssignments,
   getAssignmentById,
-  getAssignmentStatus
+  getAssignmentStatus,
+  getStudentPerformance
 } = require('../controllers/teacher');
 
 const router = express.Router();
@@ -23,5 +24,6 @@ router.get('/student-details', auth, getStudentDetails);
 router.get('/assignments', auth, getAssignments);
 router.get('/assignments/:assignmentId', auth, getAssignmentById);
 router.get('/assignment-status/:assignmentId', auth, getAssignmentStatus);
+router.get('/student-performance', auth, getStudentPerformance);
 
 module.exports = router; 

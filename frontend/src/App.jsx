@@ -22,6 +22,7 @@ import TeacherDevProfiles from './pages/teacher/TeacherDevProfiles';
 import TeacherCreateAssignment from './pages/teacher/TeacherCreateAssignment';
 import TeacherAssignmentStatus from './pages/teacher/TeacherAssignmentStatus';
 import AssignmentStatusDetail from './pages/teacher/AssignmentStatusDetail';
+import TeacherPerformanceReport from './pages/teacher/TeacherPerformanceReport';
 
 const theme = createTheme({
   palette: {
@@ -173,6 +174,16 @@ const App = () => {
                 <PrivateRoute>
                   <TeacherLayout>
                     <AssignmentStatusDetail />
+                  </TeacherLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/teacher/performance-report"
+              element={
+                <PrivateRoute>
+                  <TeacherLayout>
+                    <TeacherPerformanceReport />
                   </TeacherLayout>
                 </PrivateRoute>
               }

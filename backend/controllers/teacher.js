@@ -362,4 +362,56 @@ exports.getAssignmentStatus = async (req, res) => {
       message: error.message
     });
   }
+};
+
+// @desc    Get student performance data
+// @route   GET /api/teacher/student-performance
+// @access  Private
+exports.getStudentPerformance = async (req, res) => {
+  try {
+    // Get all students with their profile data
+    const students = await Student.find().select('name email leetcodeProfileUrl codechefProfileUrl githubProfileUrl rankings completedAssignments');
+
+    // For each student, calculate the number of completed assignments by difficulty
+    const studentsWithStats = await Promise.all(students.map(async (student) => {
+      // Get all assignments completed by the student
+      const assignments = await Assignment.find({
+        _id: { $in: student.completedAssignments.map(ca => ca.assignment) }
+      });
+
+      // Count assignments by difficulty
+      const completedByDifficulty = {
+        easy: 0,
+        medium: 0,
+        hard: 0
+      };
+
+      assignments.forEach(assignment => {
+        completedByDifficulty[assignment.difficulty.toLowerCase()]++;
+      });
+
+      // Return student data with assignment counts
+      return {
+        _id: student._id,
+        name: student.name,
+        email: student.email,
+        leetcodeProfileUrl: student.leetcodeProfileUrl,
+        codechefProfileUrl: student.codechefProfileUrl,
+        githubProfileUrl: student.githubProfileUrl,
+        rankings: student.rankings,
+        completedAssignments: completedByDifficulty
+      };
+    }));
+
+    res.json({
+      success: true,
+      data: studentsWithStats
+    });
+  } catch (error) {
+    console.error('Error in getStudentPerformance:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 }; 
