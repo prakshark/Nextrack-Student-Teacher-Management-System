@@ -3,6 +3,7 @@ const Teacher = require('../models/Teacher');
 const Student = require('../models/Student');
 const Assignment = require('../models/Assignment');
 const axios = require('axios');
+const Attendance = require('../models/Attendance');
 
 // @desc    Register teacher
 // @route   POST /api/teacher/register
@@ -409,6 +410,155 @@ exports.getStudentPerformance = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getStudentPerformance:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get all students
+// @route   GET /api/teacher/students
+// @access  Private
+exports.getAllStudents = async (req, res) => {
+  try {
+    const students = await Student.find()
+      .select('name email')
+      .sort({ name: 1 });
+
+    res.json({
+      success: true,
+      data: students
+    });
+  } catch (error) {
+    console.error('Error in getAllStudents:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get attendance for all students
+// @route   GET /api/teacher/attendance
+// @access  Private
+exports.getAttendance = async (req, res) => {
+  try {
+    // Get attendance records for the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Set time to noon to avoid timezone issues
+    thirtyDaysAgo.setHours(12, 0, 0, 0);
+
+    const attendanceRecords = await Attendance.find({
+      date: { $gte: thirtyDaysAgo }
+    }).populate('student', 'name email');
+
+    // Transform the data into the format expected by the frontend
+    const attendanceMap = {};
+    attendanceRecords.forEach(record => {
+      if (!attendanceMap[record.student._id]) {
+        attendanceMap[record.student._id] = {};
+      }
+      // Format date as YYYY-MM-DD
+      const dateStr = record.date.toISOString().split('T')[0];
+      attendanceMap[record.student._id][dateStr] = record.present;
+    });
+
+    res.json({
+      success: true,
+      data: attendanceMap
+    });
+  } catch (error) {
+    console.error('Error in getAttendance:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Mark attendance for a student
+// @route   POST /api/teacher/attendance
+// @access  Private
+exports.markAttendance = async (req, res) => {
+  try {
+    const { studentId, date, present } = req.body;
+
+    // Validate inputs
+    if (!studentId || !date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide both studentId and date'
+      });
+    }
+
+    // Check if student exists
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    // Parse the date and set time to noon to avoid timezone issues
+    const attendanceDate = new Date(date);
+    attendanceDate.setHours(12, 0, 0, 0);
+
+    // Check if date is not in the future
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+    if (attendanceDate > today) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot mark attendance for future dates'
+      });
+    }
+
+    // Update or create attendance record
+    await Attendance.findOneAndUpdate(
+      {
+        student: studentId,
+        date: attendanceDate
+      },
+      {
+        student: studentId,
+        date: attendanceDate,
+        present: present,
+        markedBy: req.user.id
+      },
+      {
+        upsert: true,
+        new: true
+      }
+    );
+
+    // Fetch updated attendance data
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setHours(12, 0, 0, 0);
+
+    const attendanceRecords = await Attendance.find({
+      date: { $gte: thirtyDaysAgo }
+    }).populate('student', 'name email');
+
+    // Transform the data
+    const attendanceMap = {};
+    attendanceRecords.forEach(record => {
+      if (!attendanceMap[record.student._id]) {
+        attendanceMap[record.student._id] = {};
+      }
+      const dateStr = record.date.toISOString().split('T')[0];
+      attendanceMap[record.student._id][dateStr] = record.present;
+    });
+
+    res.json({
+      success: true,
+      data: attendanceMap
+    });
+  } catch (error) {
+    console.error('Error in markAttendance:', error);
     res.status(500).json({
       success: false,
       message: error.message
