@@ -1,5 +1,6 @@
 const Assignment = require('../models/Assignment');
 const Student = require('../models/Student');
+const Attendance = require('../models/Attendance');
 const asyncHandler = require('express-async-handler');
 
 // @desc    Get student profile
@@ -129,6 +130,43 @@ const getRankings = asyncHandler(async (req, res) => {
   res.json({ success: true, data: student.rankings });
 });
 
+const getAttendance = asyncHandler(async (req, res) => {
+  const studentId = req.user._id;
+
+  // Get attendance records for the last 30 days
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  // Set time to noon to avoid timezone issues
+  thirtyDaysAgo.setHours(12, 0, 0, 0);
+
+  const attendanceRecords = await Attendance.find({
+    student: studentId,
+    date: { $gte: thirtyDaysAgo }
+  });
+
+  // Create a map of date to attendance status
+  const attendance = {};
+  let presentDays = 0;
+
+  attendanceRecords.forEach(record => {
+    const dateStr = record.date.toISOString().split('T')[0];
+    attendance[dateStr] = true;
+    presentDays++;
+  });
+
+  // Calculate attendance percentage
+  const totalDays = 30;
+  const percentage = Math.round((presentDays / totalDays) * 100);
+
+  res.json({
+    success: true,
+    data: {
+      attendance,
+      percentage
+    }
+  });
+});
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -136,5 +174,6 @@ module.exports = {
   getCompletedAssignments,
   completeAssignment,
   uncompleteAssignment,
-  getRankings
+  getRankings,
+  getAttendance
 }; 

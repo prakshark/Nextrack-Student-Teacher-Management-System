@@ -15,7 +15,8 @@ import {
   Assignment as AssignmentIcon,
   EmojiEvents as EmojiEventsIcon,
   CalendarMonth as CalendarIcon,
-  MenuBook as MenuBookIcon
+  MenuBook as MenuBookIcon,
+  EventAvailable as EventAvailableIcon
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -55,6 +56,12 @@ const Dashboard = () => {
       path: 'https://competitiveprogramming.info/calendar',
       color: theme.palette.info.main,
       external: true
+    },
+    {
+      title: 'My Attendance',
+      icon: <EventAvailableIcon sx={{ fontSize: 40 }} />,
+      path: '/attendance',
+      color: '#0288d1'
     }
   ];
 

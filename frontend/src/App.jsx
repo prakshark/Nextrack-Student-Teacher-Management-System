@@ -13,6 +13,7 @@ import Development from './pages/Development';
 import Assignments from './pages/Assignments';
 import Rankings from './pages/Rankings';
 import Profile from './pages/Profile';
+import Attendance from './pages/Attendance';
 
 // Import teacher pages
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
@@ -85,6 +86,16 @@ const App = () => {
                 <PrivateRoute>
                   <MainLayout>
                     <Assignments />
+                  </MainLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/attendance"
+              element={
+                <PrivateRoute>
+                  <MainLayout>
+                    <Attendance />
                   </MainLayout>
                 </PrivateRoute>
               }

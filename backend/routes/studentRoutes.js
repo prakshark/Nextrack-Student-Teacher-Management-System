@@ -8,7 +8,8 @@ const {
   getRankings,
   getCompletedAssignments,
   completeAssignment,
-  uncompleteAssignment
+  uncompleteAssignment,
+  getAttendance
 } = require('../controllers/studentController');
 
 // Profile routes
@@ -23,5 +24,6 @@ router.post('/uncomplete-assignment/:assignmentId', auth, uncompleteAssignment);
 
 // Rankings route
 router.get('/rankings', auth, getRankings);
+router.get('/attendance', auth, getAttendance);
 
 module.exports = router; 
