@@ -7,6 +7,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import ComputerIcon from '@mui/icons-material/Computer';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import TableChartIcon from '@mui/icons-material/TableChart';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -54,6 +55,12 @@ const TeacherDashboard = () => {
       icon: <EventAvailableIcon sx={{ fontSize: 40 }} />,
       path: '/teacher/attendance',
       color: '#0288d1'
+    },
+    {
+      title: 'Generate Insights with Excel',
+      icon: <TableChartIcon sx={{ fontSize: 40 }} />,
+      path: '/teacher/excel-insights',
+      color: '#00796b'
     }
   ];
 

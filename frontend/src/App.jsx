@@ -25,6 +25,7 @@ import TeacherAssignmentStatus from './pages/teacher/TeacherAssignmentStatus';
 import AssignmentStatusDetail from './pages/teacher/AssignmentStatusDetail';
 import TeacherPerformanceReport from './pages/teacher/TeacherPerformanceReport';
 import TeacherAttendance from './pages/teacher/TeacherAttendance';
+import ExcelInsights from './pages/teacher/ExcelInsights';
 
 const theme = createTheme({
   palette: {
@@ -210,6 +211,7 @@ const App = () => {
                 </PrivateRoute>
               }
             />
+            <Route path="/teacher/excel-insights" element={<ExcelInsights />} />
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
         </Router>
