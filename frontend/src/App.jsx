@@ -21,6 +21,7 @@ import TeacherDSASubmissions from './pages/teacher/TeacherDSASubmissions';
 import TeacherDevProfiles from './pages/teacher/TeacherDevProfiles';
 import TeacherCreateAssignment from './pages/teacher/TeacherCreateAssignment';
 import TeacherAssignmentStatus from './pages/teacher/TeacherAssignmentStatus';
+import AssignmentStatusDetail from './pages/teacher/AssignmentStatusDetail';
 
 const theme = createTheme({
   palette: {
@@ -162,6 +163,16 @@ const App = () => {
                 <PrivateRoute>
                   <TeacherLayout>
                     <TeacherAssignmentStatus />
+                  </TeacherLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/teacher/assignment-status/:assignmentId"
+              element={
+                <PrivateRoute>
+                  <TeacherLayout>
+                    <AssignmentStatusDetail />
                   </TeacherLayout>
                 </PrivateRoute>
               }

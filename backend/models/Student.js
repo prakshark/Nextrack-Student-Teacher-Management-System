@@ -46,6 +46,17 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Assignment'
   }],
+  completedAssignments: [{
+    assignment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Assignment',
+      required: true
+    },
+    completedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   rankings: {
     leetcode: {
       type: Object,

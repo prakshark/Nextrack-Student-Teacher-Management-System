@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -10,7 +11,8 @@ import {
   Chip,
   Alert,
   CircularProgress,
-  Divider
+  Divider,
+  Button
 } from '@mui/material';
 import { Link as LinkIcon } from '@mui/icons-material';
 import axios from 'axios';
@@ -19,6 +21,7 @@ const TeacherAssignmentStatus = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAssignments();
@@ -53,6 +56,10 @@ const TeacherAssignmentStatus = () => {
     });
   };
 
+  const handleAssignmentClick = (assignmentId) => {
+    navigate(`/teacher/assignment-status/${assignmentId}`);
+  };
+
   if (loading) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -79,8 +86,19 @@ const TeacherAssignmentStatus = () => {
         <Alert severity="info">No assignments found.</Alert>
       ) : (
         <List>
-          {assignments.map((assignment, index) => (
-            <Paper key={assignment._id} sx={{ mb: 2, p: 2 }}>
+          {assignments.map((assignment) => (
+            <Paper 
+              key={assignment._id} 
+              sx={{ 
+                mb: 2, 
+                p: 2,
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }}
+              onClick={() => handleAssignmentClick(assignment._id)}
+            >
               <ListItem alignItems="flex-start">
                 <Box sx={{ width: '100%' }}>
                   <Box sx={{ mb: 1 }}>
@@ -117,6 +135,7 @@ const TeacherAssignmentStatus = () => {
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 style={{ color: '#1976d2', textDecoration: 'none' }}
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 {link}
                               </a>

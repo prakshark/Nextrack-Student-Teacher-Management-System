@@ -19,7 +19,7 @@ app.use(cors());
 
 // Route files
 const authRoutes = require('./routes/auth');
-const studentRoutes = require('./routes/student');
+const studentRoutes = require('./routes/studentRoutes');
 const teacherRoutes = require('./routes/teacher');
 const assignmentRoutes = require('./routes/assignment');
 
@@ -27,7 +27,7 @@ const assignmentRoutes = require('./routes/assignment');
 app.use('/api/auth', authRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/teacher', teacherRoutes);
-app.use('/api/assignment', assignmentRoutes);
+app.use('/api/assignments', assignmentRoutes);
 
 const PORT = process.env.PORT || 5000;
 

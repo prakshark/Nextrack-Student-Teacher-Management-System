@@ -11,7 +11,9 @@ import {
   Select,
   MenuItem,
   CircularProgress,
-  Alert
+  Alert,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material';
 import axios from 'axios';
 
@@ -20,13 +22,14 @@ const Assignments = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
+  const [completedAssignments, setCompletedAssignments] = useState([]);
 
   useEffect(() => {
-    const fetchAssignments = async () => {
+    const fetchData = async () => {
       try {
-        console.log('Fetching assignments...');
+        console.log('Starting to fetch assignments...');
         const token = localStorage.getItem('token');
-        console.log('Token:', token ? 'Present' : 'Missing');
+        console.log('Token exists:', !!token);
         
         if (!token) {
           setError('Please login to view assignments');
@@ -34,50 +37,82 @@ const Assignments = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:5000/api/student/assignments', {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const [assignmentsRes, completedRes] = await Promise.all([
+          axios.get('http://localhost:5000/api/student/assignments', {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }),
+          axios.get('http://localhost:5000/api/student/completed-assignments', {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          })
+        ]);
         
-        console.log('Raw response:', response.data);
+        console.log('Raw assignments response:', assignmentsRes.data);
+        console.log('Raw completed assignments response:', completedRes.data);
         
-        const assignmentsArray = Array.isArray(response.data) ? response.data : response.data.data || [];
+        const assignmentsArray = Array.isArray(assignmentsRes.data) ? assignmentsRes.data : assignmentsRes.data.data || [];
+        const completedArray = completedRes.data.data.map(ca => ca.assignment._id);
+        
         console.log('Processed assignments array:', assignmentsArray);
+        console.log('Processed completed array:', completedArray);
         
         const sortedAssignments = assignmentsArray.sort((a, b) => {
           return new Date(b.createdAt) - new Date(a.createdAt);
         });
         
-        console.log('Sorted assignments:', sortedAssignments);
         setAssignments(sortedAssignments);
+        setCompletedAssignments(completedArray);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching assignments:', err);
         console.error('Error details:', {
           message: err.message,
           response: err.response?.data,
-          status: err.response?.status
+          status: err.response?.status,
+          stack: err.stack
         });
         setError('Failed to fetch assignments. Please try again later.');
         setLoading(false);
       }
     };
 
-    fetchAssignments();
+    fetchData();
   }, []);
 
   const handleDifficultyChange = (event) => {
     setSelectedDifficulty(event.target.value);
   };
 
+  const handleAssignmentCompletion = async (assignmentId, isCompleted) => {
+    try {
+      const token = localStorage.getItem('token');
+      const endpoint = isCompleted ? 'complete-assignment' : 'uncomplete-assignment';
+      
+      await axios.post(`http://localhost:5000/api/student/${endpoint}/${assignmentId}`, {}, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (isCompleted) {
+        setCompletedAssignments([...completedAssignments, assignmentId]);
+      } else {
+        setCompletedAssignments(completedAssignments.filter(id => id !== assignmentId));
+      }
+    } catch (err) {
+      console.error('Error updating assignment completion:', err);
+      setError('Failed to update assignment status. Please try again.');
+    }
+  };
+
   const displayedAssignments = selectedDifficulty === 'all'
     ? assignments
     : assignments.filter(assignment => assignment.difficulty === selectedDifficulty);
-
-  console.log('Current assignments state:', assignments);
-  console.log('Displayed assignments:', displayedAssignments);
 
   if (loading) {
     return (
@@ -126,9 +161,21 @@ const Assignments = () => {
             <Grid item xs={12} key={assignment._id}>
               <Card>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {assignment.name}
-                  </Typography>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="h6" gutterBottom>
+                      {assignment.name}
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={completedAssignments.includes(assignment._id)}
+                          onChange={(e) => handleAssignmentCompletion(assignment._id, e.target.checked)}
+                          color="success"
+                        />
+                      }
+                      label="Completed"
+                    />
+                  </Box>
                   <Typography color="text.secondary" gutterBottom>
                     Due: {new Date(assignment.deadline).toLocaleString()}
                   </Typography>

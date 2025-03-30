@@ -284,4 +284,82 @@ exports.getAssignments = async (req, res) => {
       message: 'Error fetching assignments'
     });
   }
+};
+
+// @desc    Get specific assignment by ID
+// @route   GET /api/teacher/assignments/:assignmentId
+// @access  Private
+exports.getAssignmentById = async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.assignmentId);
+    
+    if (!assignment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Assignment not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: assignment
+    });
+  } catch (error) {
+    console.error('Error in getAssignmentById:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get assignment completion status for all students
+// @route   GET /api/teacher/assignment-status/:assignmentId
+// @access  Private
+exports.getAssignmentStatus = async (req, res) => {
+  try {
+    const assignmentId = req.params.assignmentId;
+    
+    // Get all students
+    const students = await Student.find().select('name email completedAssignments');
+    
+    // Separate students into completed and not completed
+    const completedStudents = [];
+    const notCompletedStudents = [];
+
+    for (const student of students) {
+      const completedAssignment = student.completedAssignments.find(
+        ca => ca.assignment.toString() === assignmentId
+      );
+
+      if (completedAssignment) {
+        completedStudents.push({
+          _id: student._id,
+          name: student.name,
+          email: student.email,
+          completedAt: completedAssignment.completedAt
+        });
+      } else {
+        notCompletedStudents.push({
+          _id: student._id,
+          name: student.name,
+          email: student.email
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        completed: completedStudents,
+        notCompleted: notCompletedStudents
+      }
+    });
+  } catch (error) {
+    console.error('Error in getAssignmentStatus:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 }; 
