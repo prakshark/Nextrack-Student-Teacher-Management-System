@@ -71,7 +71,26 @@ const TeacherNavbar = () => {
         >
           <MenuIcon />
         </IconButton>
+        
         <Box sx={{ flexGrow: 1 }} />
+        
+        <Box 
+          component="img"
+          src="/Nextrackwithoutbglogo.png"
+          alt="Nextrack Logo"
+          sx={{ 
+            height: 55,
+            width: 'auto',
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            cursor: 'pointer'
+          }}
+          onClick={() => navigate('/teacher/dashboard')}
+        />
+        
+        <Box sx={{ flexGrow: 1 }} />
+        
         <Button color="primary" onClick={handleLogout} startIcon={<LogoutIcon />}>
           Logout
         </Button>
