@@ -59,12 +59,20 @@ const Login = () => {
         }}
       >
         <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
-          <img 
+          <Box 
+            component="img"
             src="/Nextrackwithoutbglogo.png"
             alt="Nextrack Logo"
-            style={{
+            sx={{ 
               width: '300px',
               height: 'auto',
+              marginBottom: '2rem',
+              animation: 'fadeLoop 3s infinite ease-in-out',
+              '@keyframes fadeLoop': {
+                '0%': { opacity: 1 },
+                '50%': { opacity: 0.6 },
+                '100%': { opacity: 1 }
+              }
             }}
           />
         </Box>

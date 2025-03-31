@@ -57,13 +57,15 @@ const Sidebar = () => {
           backgroundColor: 'background.paper'
         }}
       >
-        <img 
+        <Box 
+          component="img"
           src="/Nextrackwithoutbglogo.png"
           alt="Nextrack Logo"
           style={{
-            width: '180px',  // Adjusted to fit sidebar width
+            width: '180px',
             height: 'auto',
-            padding: '8px'
+            padding: '8px',
+            animation: 'fadeLoop 3s infinite ease-in-out'
           }}
         />
       </Box>

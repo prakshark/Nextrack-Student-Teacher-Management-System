@@ -51,9 +51,11 @@ const Navbar = () => {
             width: 'auto',
             mr: 2,
             cursor: 'pointer',
-            transition: 'transform 0.2s',
-            '&:hover': {
-              transform: 'scale(1.05)'
+            animation: 'fadeLoop 3s infinite ease-in-out',
+            '@keyframes fadeLoop': {
+              '0%': { opacity: 1 },
+              '50%': { opacity: 0.3 },
+              '100%': { opacity: 1 }
             }
           }}
           onClick={() => navigate('/')}
