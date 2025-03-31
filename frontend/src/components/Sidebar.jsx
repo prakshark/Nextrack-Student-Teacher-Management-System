@@ -57,7 +57,15 @@ const Sidebar = () => {
           backgroundColor: 'background.paper'
         }}
       >
-        <SchoolIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+        <img 
+          src="/Nextrackwithoutbglogo.png"
+          alt="Nextrack Logo"
+          style={{
+            width: '180px',  // Adjusted to fit sidebar width
+            height: 'auto',
+            padding: '8px'
+          }}
+        />
       </Box>
       <Divider />
       <List>

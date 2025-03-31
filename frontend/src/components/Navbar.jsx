@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import logo from '../media/logo-glbitm.jpg';
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -45,8 +44,8 @@ const Navbar = () => {
 
         <Box 
           component="img"
-          src={logo}
-          alt="GL Bajaj Logo"
+          src="/Nextrackwithoutbglogo.png"
+          alt="Nextrack Logo"
           sx={{ 
             height: { xs: 35, sm: 40 },
             width: 'auto',
@@ -60,15 +59,7 @@ const Navbar = () => {
           onClick={() => navigate('/')}
         />
 
-        <Typography 
-          variant="h6" 
-          noWrap 
-          component="div" 
-          sx={{ flexGrow: 1, cursor: 'pointer' }}
-          onClick={() => navigate('/')}
-        >
-          GLB Topcoders
-        </Typography>
+        <Box sx={{ flexGrow: 1 }} />
 
         <Box>
           <IconButton

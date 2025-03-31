@@ -179,59 +179,92 @@ const DSAProfile = () => {
                 <Typography variant="h6" gutterBottom>
                   Problem Solving Statistics
                 </Typography>
-                <Box sx={{ height: 300 }}>
-                  <Bar
-                    data={{
-                      labels: ['Easy', 'Medium', 'Hard', 'Total'],
-                      datasets: [
-                        {
-                          label: 'Solved Problems',
-                          data: [
-                            leetcodeData?.easySolved || 0,
-                            leetcodeData?.mediumSolved || 0,
-                            leetcodeData?.hardSolved || 0,
-                            leetcodeData?.totalSolved || 0
-                          ],
-                          backgroundColor: '#1976d2',
-                          borderColor: '#1976d2',
-                          borderWidth: 1
-                        },
-                        {
-                          label: 'Total Questions',
-                          data: [
-                            leetcodeData?.totalEasy || 0,
-                            leetcodeData?.totalMedium || 0,
-                            leetcodeData?.totalHard || 0,
-                            leetcodeData?.totalQuestions || 0
-                          ],
-                          backgroundColor: '#2e7d32',
-                          borderColor: '#2e7d32',
-                          borderWidth: 1
-                        }
-                      ]
-                    }}
-                    options={{
-                      responsive: true,
-                      plugins: {
-                        legend: {
-                          position: 'top',
-                        },
-                        title: {
-                          display: true,
-                          text: 'Problem Solving Progress'
-                        }
-                      },
-                      scales: {
-                        y: {
-                          beginAtZero: true,
+                <Box sx={{ 
+                  width: '100%',
+                  overflowX: 'auto'
+                }}>
+                  <Box sx={{ 
+                    minWidth: '300px',
+                    height: 300,
+                  }}>
+                    <Bar
+                      data={{
+                        labels: ['Easy', 'Medium', 'Hard', 'Total'],
+                        datasets: [
+                          {
+                            label: 'Solved Problems',
+                            data: [
+                              leetcodeData?.easySolved || 0,
+                              leetcodeData?.mediumSolved || 0,
+                              leetcodeData?.hardSolved || 0,
+                              leetcodeData?.totalSolved || 0
+                            ],
+                            backgroundColor: '#1976d2',
+                            borderColor: '#1976d2',
+                            borderWidth: 1
+                          },
+                          {
+                            label: 'Total Questions',
+                            data: [
+                              leetcodeData?.totalEasy || 0,
+                              leetcodeData?.totalMedium || 0,
+                              leetcodeData?.totalHard || 0,
+                              leetcodeData?.totalQuestions || 0
+                            ],
+                            backgroundColor: '#2e7d32',
+                            borderColor: '#2e7d32',
+                            borderWidth: 1
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'top',
+                            labels: {
+                              boxWidth: 20,
+                              font: {
+                                size: 10
+                              }
+                            }
+                          },
                           title: {
                             display: true,
-                            text: 'Count'
+                            text: 'Problem Solving Progress',
+                            font: {
+                              size: 12
+                            }
+                          }
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            title: {
+                              display: true,
+                              text: 'Count',
+                              font: {
+                                size: 10
+                              }
+                            },
+                            ticks: {
+                              font: {
+                                size: 10
+                              }
+                            }
+                          },
+                          x: {
+                            ticks: {
+                              font: {
+                                size: 10
+                              }
+                            }
                           }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  </Box>
                 </Box>
               </Paper>
             </Grid>
@@ -291,57 +324,84 @@ const DSAProfile = () => {
                 <Typography variant="h6" gutterBottom>
                   Rating Overview
                 </Typography>
-                <Box sx={{ height: 300 }}>
-                  <Bar
-                    data={{
-                      labels: ['Current Rating', 'Highest Rating', 'Global Rank', 'Country Rank'],
-                      datasets: [
-                        {
-                          label: 'Profile Statistics',
-                          data: [
-                            codechefData?.currentRating || 0,
-                            codechefData?.highestRating || 0,
-                            codechefData?.globalRank || 0,
-                            codechefData?.countryRank || 0
-                          ],
-                          backgroundColor: [
-                            '#1976d2',
-                            '#2e7d32',
-                            '#ed6c02',
-                            '#9c27b0'
-                          ],
-                          borderColor: [
-                            '#1976d2',
-                            '#2e7d32',
-                            '#ed6c02',
-                            '#9c27b0'
-                          ],
-                          borderWidth: 1
-                        }
-                      ]
-                    }}
-                    options={{
-                      responsive: true,
-                      plugins: {
-                        legend: {
-                          display: false
-                        },
-                        title: {
-                          display: true,
-                          text: 'Profile Statistics'
-                        }
-                      },
-                      scales: {
-                        y: {
-                          beginAtZero: true,
+                <Box sx={{ 
+                  width: '100%',
+                  overflowX: 'auto'
+                }}>
+                  <Box sx={{ 
+                    minWidth: '300px',
+                    height: 300,
+                  }}>
+                    <Bar
+                      data={{
+                        labels: ['Current Rating', 'Highest Rating', 'Global Rank', 'Country Rank'],
+                        datasets: [
+                          {
+                            label: 'Profile Statistics',
+                            data: [
+                              codechefData?.currentRating || 0,
+                              codechefData?.highestRating || 0,
+                              codechefData?.globalRank || 0,
+                              codechefData?.countryRank || 0
+                            ],
+                            backgroundColor: [
+                              '#1976d2',
+                              '#2e7d32',
+                              '#ed6c02',
+                              '#9c27b0'
+                            ],
+                            borderColor: [
+                              '#1976d2',
+                              '#2e7d32',
+                              '#ed6c02',
+                              '#9c27b0'
+                            ],
+                            borderWidth: 1
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            display: false
+                          },
                           title: {
                             display: true,
-                            text: 'Value'
+                            text: 'Profile Statistics',
+                            font: {
+                              size: 12
+                            }
+                          }
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            title: {
+                              display: true,
+                              text: 'Value',
+                              font: {
+                                size: 10
+                              }
+                            },
+                            ticks: {
+                              font: {
+                                size: 10
+                              }
+                            }
+                          },
+                          x: {
+                            ticks: {
+                              font: {
+                                size: 10
+                              }
+                            }
                           }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  </Box>
                 </Box>
               </Paper>
             </Grid>

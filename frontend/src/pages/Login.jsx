@@ -52,12 +52,22 @@ const Login = () => {
     <Container maxWidth="sm">
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: 4,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
         }}
       >
+        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+          <img 
+            src="/Nextrackwithoutbglogo.png"
+            alt="Nextrack Logo"
+            style={{
+              width: '300px',
+              height: 'auto',
+            }}
+          />
+        </Box>
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>

@@ -31,10 +31,9 @@ const TeacherAttendance = () => {
   // Get dates for the last 30 days
   const getDates = () => {
     const dates = [];
-    for (let i = 29; i >= 0; i--) {
+    for (let i = 0; i <= 29; i++) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      // Set time to noon to avoid timezone issues
       date.setHours(12, 0, 0, 0);
       dates.push(date);
     }
@@ -274,8 +273,18 @@ const TeacherAttendance = () => {
         <Table stickyHeader sx={{ minWidth: 1500 }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ minWidth: 150, position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 1000 }}>Name</TableCell>
-              <TableCell sx={{ minWidth: 200, position: 'sticky', left: 150, backgroundColor: 'white', zIndex: 1000 }}>Email</TableCell>
+              <TableCell 
+                sx={{ 
+                  minWidth: 150, 
+                  position: 'sticky', 
+                  left: 0, 
+                  backgroundColor: 'white', 
+                  zIndex: 1000 
+                }}
+              >
+                Name
+              </TableCell>
+              <TableCell sx={{ minWidth: 200 }}>Email</TableCell>
               {dates.map(date => (
                 <TableCell 
                   key={date.toISOString()} 
@@ -292,12 +301,17 @@ const TeacherAttendance = () => {
           <TableBody>
             {filteredStudents.map((student) => (
               <TableRow key={student._id} hover>
-                <TableCell sx={{ position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 900 }}>
+                <TableCell 
+                  sx={{ 
+                    position: 'sticky', 
+                    left: 0, 
+                    backgroundColor: 'white', 
+                    zIndex: 900 
+                  }}
+                >
                   {student.name}
                 </TableCell>
-                <TableCell sx={{ position: 'sticky', left: 150, backgroundColor: 'white', zIndex: 900 }}>
-                  {student.email}
-                </TableCell>
+                <TableCell>{student.email}</TableCell>
                 {dates.map(date => {
                   const dateStr = formatDateForAPI(date);
                   const today = new Date();

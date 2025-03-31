@@ -7,7 +7,7 @@ import {
   CardContent,
   Typography,
   useTheme,
-  Paper
+  IconButton,
 } from '@mui/material';
 import {
   Code as CodeIcon,
@@ -15,7 +15,8 @@ import {
   Assignment as AssignmentIcon,
   EmojiEvents as EmojiEventsIcon,
   CalendarMonth as CalendarIcon,
-  EventAvailable as EventAvailableIcon
+  EventAvailable as EventAvailableIcon,
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -71,20 +72,31 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Box display="flex" justifyContent="flex-end" mb={4}>
-        <button
-          onClick={handleLogout}
+      <Box 
+        display="flex" 
+        justifyContent="space-between" 
+        alignItems="center" 
+        mb={4}
+      >
+        <img 
+          src="/Nextrackwithoutbglogo.png"
+          alt="Nextrack Logo"
           style={{
-            padding: '8px 16px',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
+            width: '200px',
+            height: 'auto',
+          }}
+        />
+        <IconButton
+          onClick={handleLogout}
+          sx={{
+            color: '#dc3545',
+            '&:hover': {
+              backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            }
           }}
         >
-          Logout
-        </button>
+          <LogoutIcon />
+        </IconButton>
       </Box>
 
       <Typography variant="h4" gutterBottom>
