@@ -4,6 +4,8 @@ const { register, login, verifyToken, debugUser } = require('../controllers/auth
 const auth = require('../middleware/auth');
 const Student = require('../models/Student');
 const Teacher = require('../models/Teacher');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // Register route
 router.post('/register', register);
