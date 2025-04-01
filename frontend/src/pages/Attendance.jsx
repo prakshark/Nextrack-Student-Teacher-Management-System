@@ -27,14 +27,21 @@ const Attendance = () => {
   const [error, setError] = useState('');
   const [attendancePercentage, setAttendancePercentage] = useState(0);
 
-  // Get dates for the last 30 days
+  // Modified getDates function to handle 2025
   const getDates = () => {
     const dates = [];
+    const currentDate = new Date();
+    
+    // Ensure we're working with 2025
+    if (currentDate.getFullYear() !== 2025) {
+      currentDate.setFullYear(2025);
+    }
+    
+    currentDate.setHours(0, 0, 0, 0);
+    
     for (let i = 0; i <= 29; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      // Set time to noon to avoid timezone issues
-      date.setHours(12, 0, 0, 0);
+      const date = new Date(currentDate);
+      date.setDate(currentDate.getDate() - i);
       dates.push(date);
     }
     return dates;
@@ -48,6 +55,16 @@ const Attendance = () => {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
     return `${day}/${month}/${year}`;
+  };
+
+  const formatDateForAPI = (date) => {
+    const d = new Date(date);
+    // Set to UTC midnight
+    d.setUTCHours(0, 0, 0, 0);
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   useEffect(() => {
@@ -67,8 +84,32 @@ const Attendance = () => {
           }
         });
 
-        setAttendance(response.data.data.attendance || {});
-        setAttendancePercentage(response.data.data.percentage || 0);
+        console.log('Raw API Response:', response.data);
+
+        // Transform the attendance data
+        const attendanceData = {};
+        
+        if (Array.isArray(response.data.data)) {
+          response.data.data.forEach(record => {
+            // Convert the date to UTC midnight
+            const date = new Date(record.date);
+            date.setUTCHours(0, 0, 0, 0);
+            const dateStr = formatDateForAPI(date);
+            attendanceData[dateStr] = true; // If record exists, student was present
+            console.log(`Processing attendance record: ${dateStr} = Present`);
+          });
+        }
+
+        console.log('Transformed attendance data:', attendanceData);
+
+        setAttendance(attendanceData);
+        
+        // Calculate percentage
+        const totalDays = Object.keys(attendanceData).length;
+        const presentDays = Object.values(attendanceData).filter(present => present).length;
+        const percentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+        
+        setAttendancePercentage(percentage);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -177,8 +218,10 @@ const Attendance = () => {
           </TableHead>
           <TableBody>
             {dates.map((date) => {
-              const dateStr = date.toISOString().split('T')[0];
-              const isPresent = attendance[dateStr];
+              const dateStr = formatDateForAPI(date);
+              const isPresent = !!attendance[dateStr];
+
+              console.log('Checking attendance for:', dateStr, 'Present:', isPresent, 'Raw value:', attendance[dateStr]);
 
               return (
                 <TableRow 

@@ -56,12 +56,6 @@ const Dashboard = () => {
       path: 'https://competitiveprogramming.info/calendar',
       color: theme.palette.info.main,
       external: true
-    },
-    {
-      title: 'My Attendance',
-      icon: <EventAvailableIcon sx={{ fontSize: 40 }} />,
-      path: '/attendance',
-      color: '#0288d1'
     }
   ];
 

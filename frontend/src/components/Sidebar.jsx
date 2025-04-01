@@ -19,7 +19,6 @@ import {
   Leaderboard as LeaderboardIcon,
   Person as PersonIcon,
   School as SchoolIcon,
-  EventAvailable as EventAvailableIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -31,7 +30,6 @@ const menuItems = [
   { text: 'Development', icon: <CodeIcon />, path: '/development' },
   { text: 'Assignments', icon: <AssignmentIcon />, path: '/assignments' },
   { text: 'Rankings', icon: <LeaderboardIcon />, path: '/rankings' },
-  { text: 'Attendance', icon: <EventAvailableIcon />, path: '/attendance' },
   { text: 'Profile', icon: <PersonIcon />, path: '/profile' },
 ];
 

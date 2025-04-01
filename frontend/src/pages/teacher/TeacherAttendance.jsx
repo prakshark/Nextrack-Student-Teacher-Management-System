@@ -31,10 +31,18 @@ const TeacherAttendance = () => {
   // Get dates for the last 30 days
   const getDates = () => {
     const dates = [];
+    const currentDate = new Date();
+    
+    // Ensure we're working with the correct year (2025)
+    if (currentDate.getFullYear() !== 2025) {
+      currentDate.setFullYear(2025);
+    }
+    
+    currentDate.setHours(0, 0, 0, 0); // Set to start of day
+    
     for (let i = 0; i <= 29; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      date.setHours(12, 0, 0, 0);
+      const date = new Date(currentDate); // Clone current date
+      date.setDate(currentDate.getDate() - i);
       dates.push(date);
     }
     return dates;
@@ -68,6 +76,10 @@ const TeacherAttendance = () => {
           })
         ]);
 
+        // Add console.log to debug initial data
+        console.log('Initial students:', studentsResponse.data.data);
+        console.log('Initial attendance:', attendanceResponse.data.data);
+
         setStudents(studentsResponse.data.data);
         setAttendance(attendanceResponse.data.data || {});
         setLoading(false);
@@ -99,10 +111,24 @@ const TeacherAttendance = () => {
   const handleAttendanceChange = async (studentId, date) => {
     const dateStr = formatDateForAPI(date);
     const today = new Date();
-    today.setHours(12, 0, 0, 0);
+    
+    // Set today to 2025 for comparison
+    if (today.getFullYear() !== 2025) {
+      today.setFullYear(2025);
+    }
+    today.setHours(0, 0, 0, 0);
 
-    // Only allow changes for today and past dates
+    // Date validation
     if (date > today) {
+      console.log('Cannot mark attendance for future dates:', dateStr);
+      return;
+    }
+
+    // Check if the date is more than 30 days old
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    if (date < thirtyDaysAgo) {
+      console.log('Cannot mark attendance for dates older than 30 days:', dateStr);
       return;
     }
 
@@ -123,9 +149,13 @@ const TeacherAttendance = () => {
         }
       );
 
+      console.log('Previous attendance:', attendance);
+      console.log('Response data:', response.data.data);
       setAttendance(response.data.data);
+      console.log('Updated attendance:', response.data.data);
     } catch (err) {
       console.error('Error updating attendance:', err);
+      alert('Failed to update attendance. Please try again.');
     }
   };
 
@@ -317,6 +347,9 @@ const TeacherAttendance = () => {
                   const today = new Date();
                   today.setHours(12, 0, 0, 0);
                   const isDisabled = date > today;
+
+                  // Add console.log to debug checkbox state
+                  console.log('Checkbox state for', student.name, dateStr, ':', !!attendance[student._id]?.[dateStr]);
 
                   return (
                     <TableCell 
