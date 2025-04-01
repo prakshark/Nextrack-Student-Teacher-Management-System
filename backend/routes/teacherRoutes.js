@@ -8,6 +8,7 @@ const auth = require('../middleware/auth');
 const teacherAuth = require('../middleware/teacherAuth');
 const axios = require('axios');
 const Submission = require('../models/Submission');
+const asyncHandler = require('express-async-handler');
 
 // Add this console log to verify route registration
 console.log('Registering teacher routes...');
@@ -54,48 +55,80 @@ router.post('/assignments', [auth, teacherAuth], async (req, res) => {
   }
 });
 
-// Get assignment status
-router.get('/assignment-status/:id', [auth, teacherAuth], async (req, res) => {
+// @desc    Get assignment status
+// @route   GET /api/teacher/assignment-status/:id
+// @access  Private
+const getAssignmentStatus = asyncHandler(async (req, res) => {
+  console.log('\n=== Starting Assignment Status Fetch ===');
+  console.log('Assignment ID:', req.params.id);
+
   try {
+    // Get the specific assignment
     const assignment = await Assignment.findById(req.params.id);
     if (!assignment) {
-      return res.status(404).json({ success: false, message: 'Assignment not found' });
+      res.status(404);
+      throw new Error('Assignment not found');
     }
 
-    const students = await Student.find();
-    const completedStudents = [];
-    const notCompletedStudents = [];
+    console.log('Found assignment:', assignment.name);
+    console.log('Completed by array:', assignment.completedBy);
 
-    for (const student of students) {
-      const isCompleted = student.completedAssignments?.includes(assignment._id);
-      if (isCompleted) {
-        completedStudents.push({
-          _id: student._id,
-          name: student.name,
-          email: student.email,
-          completedAt: student.assignmentCompletionDates?.[assignment._id]
-        });
-      } else {
-        notCompletedStudents.push({
-          _id: student._id,
-          name: student.name,
-          email: student.email
-        });
-      }
-    }
+    // Get all students
+    const allStudents = await Student.find().select('name email');
+    console.log('Total students:', allStudents.length);
 
-    res.json({
+    // Get completed students (those in completedBy array)
+    const completedStudents = allStudents.filter(student => 
+      assignment.completedBy.includes(student._id.toString())
+    );
+    console.log('Completed students:', completedStudents.map(s => s.name));
+
+    // Get not completed students (those not in completedBy array)
+    const notCompletedStudents = allStudents.filter(student => 
+      !assignment.completedBy.includes(student._id.toString())
+    );
+    console.log('Not completed students:', notCompletedStudents.map(s => s.name));
+
+    // Format the response
+    const response = {
       success: true,
       data: {
-        completed: completedStudents,
-        notCompleted: notCompletedStudents
+        [assignment._id]: {
+          completed: completedStudents.map(student => ({
+            _id: student._id,
+            name: student.name,
+            email: student.email
+          })),
+          notCompleted: notCompletedStudents.map(student => ({
+            _id: student._id,
+            name: student.name,
+            email: student.email
+          }))
+        }
       }
-    });
+    };
+
+    console.log('Response data:', response.data);
+    console.log('=== End of Assignment Status Fetch ===\n');
+
+    res.json(response);
   } catch (error) {
-    console.error('Error fetching assignment status:', error);
-    res.status(500).json({ success: false, message: 'Error fetching assignment status' });
+    console.error('\n=== Error in Assignment Status Fetch ===');
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack
+    });
+    console.error('=== End of Error Details ===\n');
+    
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error fetching assignment status'
+    });
   }
 });
+
+// Register the route
+router.get('/assignment-status/:id', [auth, teacherAuth], getAssignmentStatus);
 
 // Get all students
 router.get('/students', [auth, teacherAuth], async (req, res) => {

@@ -46,6 +46,9 @@ const AssignmentStatusDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('\n=== Starting Assignment Status Detail Fetch ===');
+        console.log('Assignment ID:', assignmentId);
+        
         const token = localStorage.getItem('token');
         if (!token) {
           setError('Please login to view assignment status');
@@ -53,26 +56,53 @@ const AssignmentStatusDetail = () => {
           return;
         }
 
-        const [assignmentRes, studentsRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/teacher/assignments/${assignmentId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          }),
-          axios.get(`http://localhost:5000/api/teacher/assignment-status/${assignmentId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          })
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        };
+
+        // Fetch assignment details and status in parallel
+        const [assignmentRes, statusRes] = await Promise.all([
+          axios.get(`http://localhost:5000/api/teacher/assignments/${assignmentId}`, { headers }),
+          axios.get(`http://localhost:5000/api/teacher/assignment-status/${assignmentId}`, { headers })
         ]);
 
-        setAssignment(assignmentRes.data.data);
-        setStudents(studentsRes.data.data);
+        console.log('Assignment details:', assignmentRes.data);
+        console.log('Assignment status:', statusRes.data);
+        
+        if (assignmentRes.data.success && statusRes.data.success) {
+          setAssignment(assignmentRes.data.data);
+          
+          // Process the status data
+          const statusData = statusRes.data.data;
+          const processedStudents = {
+            completed: [],
+            notCompleted: []
+          };
+
+          // Get the assignment data
+          const assignmentData = statusData[assignmentId];
+          console.log('\nAssignment data:', assignmentData);
+
+          if (assignmentData) {
+            processedStudents.completed = assignmentData.completed || [];
+            processedStudents.notCompleted = assignmentData.notCompleted || [];
+          }
+
+          console.log('\nProcessed students:', processedStudents);
+          setStudents(processedStudents);
+        }
+
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('\n=== Error in Assignment Status Detail Fetch ===');
+        console.error('Error details:', {
+          name: err.name,
+          message: err.message,
+          response: err.response?.data
+        });
+        console.error('=== End of Error Details ===\n');
+        
         setError('Failed to fetch assignment status. Please try again later.');
         setLoading(false);
       }
@@ -86,9 +116,10 @@ const AssignmentStatusDetail = () => {
   };
 
   const filterStudents = (studentList) => {
+    if (!Array.isArray(studentList)) return [];
     return studentList.filter(student =>
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchQuery.toLowerCase())
+      student.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.email?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
 
@@ -137,8 +168,8 @@ const AssignmentStatusDetail = () => {
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab label={`Completed (${students.completed.length})`} />
-          <Tab label={`Not Completed (${students.notCompleted.length})`} />
+          <Tab label={`Completed (${students.completed?.length || 0})`} />
+          <Tab label={`Not Completed (${students.notCompleted?.length || 0})`} />
         </Tabs>
       </Box>
 
@@ -158,7 +189,7 @@ const AssignmentStatusDetail = () => {
                   <TableCell>{student.name}</TableCell>
                   <TableCell>{student.email}</TableCell>
                   <TableCell>
-                    {new Date(student.completedAt).toLocaleString()}
+                    {student.completedAt ? new Date(student.completedAt).toLocaleString() : 'N/A'}
                   </TableCell>
                 </TableRow>
               ))}

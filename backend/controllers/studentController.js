@@ -69,32 +69,61 @@ const completeAssignment = asyncHandler(async (req, res) => {
   const { assignmentId } = req.params;
   console.log('Marking assignment as completed:', assignmentId);
 
-  // Check if assignment exists
-  const assignment = await Assignment.findById(assignmentId);
-  if (!assignment) {
-    res.status(404);
-    throw new Error('Assignment not found');
-  }
+  try {
+    // Get both student and assignment
+    const [student, assignment] = await Promise.all([
+      Student.findById(req.user.id),
+      Assignment.findById(assignmentId)
+    ]);
 
-  // Add to student's completed assignments if not already completed
-  const student = await Student.findById(req.user.id);
-  const isCompleted = student.completedAssignments.some(
-    ca => ca.assignment.toString() === assignmentId
-  );
+    if (!student) {
+      res.status(404);
+      throw new Error('Student not found');
+    }
 
-  if (!isCompleted) {
-    student.completedAssignments.push({
-      assignment: assignmentId,
-      completedAt: new Date()
+    if (!assignment) {
+      res.status(404);
+      throw new Error('Assignment not found');
+    }
+
+    // Add to student's completed assignments if not already completed
+    const isCompleted = student.completedAssignments.some(
+      ca => ca.assignment.toString() === assignmentId
+    );
+
+    if (!isCompleted) {
+      student.completedAssignments.push({
+        assignment: assignmentId,
+        completedAt: new Date()
+      });
+
+      // Add student to assignment's completedBy array if not already there
+      if (!assignment.completedBy.includes(student._id)) {
+        assignment.completedBy.push(student._id);
+      }
+
+      // Save both documents
+      await Promise.all([
+        student.save(),
+        assignment.save()
+      ]);
+
+      console.log('Assignment marked as completed');
+      console.log('Updated student:', student);
+      console.log('Updated assignment:', assignment);
+    }
+
+    res.json({
+      success: true,
+      message: 'Assignment marked as completed'
     });
-    await student.save();
-    console.log('Assignment marked as completed');
+  } catch (error) {
+    console.error('Error in completeAssignment:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error marking assignment as completed'
+    });
   }
-
-  res.json({
-    success: true,
-    message: 'Assignment marked as completed'
-  });
 });
 
 // @desc    Mark an assignment as not completed
@@ -104,18 +133,53 @@ const uncompleteAssignment = asyncHandler(async (req, res) => {
   const { assignmentId } = req.params;
   console.log('Marking assignment as not completed:', assignmentId);
 
-  // Remove from student's completed assignments
-  const student = await Student.findById(req.user.id);
-  student.completedAssignments = student.completedAssignments.filter(
-    ca => ca.assignment.toString() !== assignmentId
-  );
-  await student.save();
-  console.log('Assignment marked as not completed');
+  try {
+    // Get both student and assignment
+    const [student, assignment] = await Promise.all([
+      Student.findById(req.user.id),
+      Assignment.findById(assignmentId)
+    ]);
 
-  res.json({
-    success: true,
-    message: 'Assignment marked as not completed'
-  });
+    if (!student) {
+      res.status(404);
+      throw new Error('Student not found');
+    }
+
+    if (!assignment) {
+      res.status(404);
+      throw new Error('Assignment not found');
+    }
+
+    // Remove from student's completed assignments
+    student.completedAssignments = student.completedAssignments.filter(
+      ca => ca.assignment.toString() !== assignmentId
+    );
+
+    // Clean up completedBy array by removing null values and the current student
+    assignment.completedBy = assignment.completedBy
+      .filter(id => id && id.toString() !== student._id.toString());
+
+    // Save both documents
+    await Promise.all([
+      student.save(),
+      assignment.save()
+    ]);
+
+    console.log('Assignment marked as not completed');
+    console.log('Updated student:', student);
+    console.log('Updated assignment:', assignment);
+
+    res.json({
+      success: true,
+      message: 'Assignment marked as not completed'
+    });
+  } catch (error) {
+    console.error('Error in uncompleteAssignment:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error marking assignment as not completed'
+    });
+  }
 });
 
 // @desc    Get student rankings

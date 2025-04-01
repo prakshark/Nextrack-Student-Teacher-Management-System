@@ -93,24 +93,54 @@ const Assignments = () => {
 
   const handleAssignmentCompletion = async (assignmentId, isCompleted) => {
     try {
-      const token = localStorage.getItem('token');
-      const endpoint = isCompleted ? 'complete-assignment' : 'uncomplete-assignment';
+      console.log('\n=== Starting Assignment Completion Update ===');
+      console.log('Assignment ID:', assignmentId);
+      console.log('Is Completed:', isCompleted);
       
-      await axios.post(`http://localhost:5000/api/student/${endpoint}/${assignmentId}`, {}, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Please login to update assignment status');
+        return;
+      }
 
-      if (isCompleted) {
-        setCompletedAssignments([...completedAssignments, assignmentId]);
+      const endpoint = isCompleted ? 'complete-assignment' : 'uncomplete-assignment';
+      console.log('Using endpoint:', endpoint);
+      
+      // Make a single API call to update both student and assignment
+      const response = await axios.post(
+        `http://localhost:5000/api/student/${endpoint}/${assignmentId}`, 
+        {}, 
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('API Response:', response.data);
+
+      if (response.data.success) {
+        // Update local state
+        if (isCompleted) {
+          setCompletedAssignments([...completedAssignments, assignmentId]);
+        } else {
+          setCompletedAssignments(completedAssignments.filter(id => id !== assignmentId));
+        }
+        console.log('Local state updated successfully');
       } else {
-        setCompletedAssignments(completedAssignments.filter(id => id !== assignmentId));
+        throw new Error(response.data.message || 'Failed to update assignment status');
       }
     } catch (err) {
-      console.error('Error updating assignment completion:', err);
-      setError('Failed to update assignment status. Please try again.');
+      console.error('\n=== Error in Assignment Completion Update ===');
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      console.error('=== End of Error Details ===\n');
+      
+      setError(err.response?.data?.message || 'Failed to update assignment status. Please try again.');
     }
   };
 

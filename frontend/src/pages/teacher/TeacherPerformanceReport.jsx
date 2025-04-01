@@ -14,7 +14,14 @@ import {
   TextField,
   Box,
   Button,
-  Stack
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
@@ -26,6 +33,8 @@ const TeacherPerformanceReport = () => {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [totalAssignments, setTotalAssignments] = useState({ easy: 0, medium: 0, hard: 0 });
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [assignmentStatus, setAssignmentStatus] = useState({ completed: [], notCompleted: [] });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,6 +106,86 @@ const TeacherPerformanceReport = () => {
     XLSX.writeFile(wb, 'student_performance_report.xlsx');
   };
 
+  const handleAssignmentClick = async (difficulty) => {
+    try {
+      console.log('\n=== Starting Assignment Status Fetch ===');
+      console.log('Difficulty:', difficulty);
+      
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      // Fetch assignment status for the selected difficulty
+      const response = await axios.get(`/api/teacher/assignment-status/${difficulty}`, { headers });
+      console.log('Assignment status response:', response.data);
+      
+      if (response.data.success) {
+        setSelectedAssignment(difficulty);
+        
+        // Process the data to show all assignments of this difficulty
+        const processedStatus = {
+          completed: [],
+          notCompleted: []
+        };
+        
+        // Get all unique students from all assignments
+        const studentMap = new Map();
+        
+        // Process each assignment's data
+        Object.values(response.data.data).forEach(assignment => {
+          console.log(`\nProcessing assignment: ${assignment.title}`);
+          console.log('Completed students:', assignment.completed.length);
+          console.log('Not completed students:', assignment.notCompleted.length);
+          
+          // Add completed students
+          assignment.completed.forEach(student => {
+            if (!studentMap.has(student._id)) {
+              studentMap.set(student._id, {
+                ...student,
+                completedAssignments: 1
+              });
+            } else {
+              studentMap.get(student._id).completedAssignments++;
+            }
+          });
+          
+          // Add not completed students
+          assignment.notCompleted.forEach(student => {
+            if (!studentMap.has(student._id)) {
+              studentMap.set(student._id, {
+                ...student,
+                completedAssignments: 0
+              });
+            }
+          });
+        });
+        
+        // Convert map to arrays
+        Array.from(studentMap.values()).forEach(student => {
+          if (student.completedAssignments > 0) {
+            processedStatus.completed.push(student);
+          } else {
+            processedStatus.notCompleted.push(student);
+          }
+        });
+        
+        console.log('\nFinal processed status:', processedStatus);
+        setAssignmentStatus(processedStatus);
+      }
+    } catch (error) {
+      console.error('\n=== Error in Assignment Status Fetch ===');
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        response: error.response?.data
+      });
+      console.error('=== End of Error Details ===\n');
+      setError('Failed to fetch assignment status');
+    }
+  };
+
   const filteredStudents = students.filter(student =>
     student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     student.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -164,9 +253,36 @@ const TeacherPerformanceReport = () => {
               <TableCell sx={{ minWidth: 200, position: 'sticky', left: 150, backgroundColor: 'white', zIndex: 1000 }}>Email</TableCell>
               <TableCell sx={{ minWidth: 150 }}>LeetCode Ranking</TableCell>
               <TableCell sx={{ minWidth: 150 }}>CodeChef Highest Rating</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>Assignments (Easy) ({totalAssignments.easy} total)</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>Assignments (Medium) ({totalAssignments.medium} total)</TableCell>
-              <TableCell sx={{ minWidth: 150 }}>Assignments (Hard) ({totalAssignments.hard} total)</TableCell>
+              <TableCell 
+                sx={{ 
+                  minWidth: 150, 
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: '#f5f5f5' }
+                }}
+                onClick={() => handleAssignmentClick('easy')}
+              >
+                Assignments (Easy) ({totalAssignments.easy} total)
+              </TableCell>
+              <TableCell 
+                sx={{ 
+                  minWidth: 150, 
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: '#f5f5f5' }
+                }}
+                onClick={() => handleAssignmentClick('medium')}
+              >
+                Assignments (Medium) ({totalAssignments.medium} total)
+              </TableCell>
+              <TableCell 
+                sx={{ 
+                  minWidth: 150, 
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: '#f5f5f5' }
+                }}
+                onClick={() => handleAssignmentClick('hard')}
+              >
+                Assignments (Hard) ({totalAssignments.hard} total)
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -188,6 +304,55 @@ const TeacherPerformanceReport = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Assignment Status Dialog */}
+      {selectedAssignment && (
+        <Dialog
+          open={Boolean(selectedAssignment)}
+          onClose={() => setSelectedAssignment(null)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            Assignment Status - {selectedAssignment.charAt(0).toUpperCase() + selectedAssignment.slice(1)}
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Completed ({assignmentStatus.completed.length})
+              </Typography>
+              <List>
+                {assignmentStatus.completed.map((student) => (
+                  <ListItem key={student._id}>
+                    <ListItemText
+                      primary={student.name}
+                      secondary={`${student.email} (${student.completedAssignments} assignments completed)`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Not Completed ({assignmentStatus.notCompleted.length})
+              </Typography>
+              <List>
+                {assignmentStatus.notCompleted.map((student) => (
+                  <ListItem key={student._id}>
+                    <ListItemText
+                      primary={student.name}
+                      secondary={student.email}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setSelectedAssignment(null)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Container>
   );
 };
