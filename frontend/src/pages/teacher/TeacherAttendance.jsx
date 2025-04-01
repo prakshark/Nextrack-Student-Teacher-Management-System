@@ -103,13 +103,23 @@ const TeacherAttendance = () => {
 
   const formatDateForAPI = (date) => {
     const d = new Date(date);
+    // Ensure we're working with the correct year (2025)
+    if (d.getFullYear() !== 2025) {
+      d.setFullYear(2025);
+    }
     // Set time to noon to avoid timezone issues
     d.setHours(12, 0, 0, 0);
     return d.toISOString().split('T')[0];
   };
 
   const handleAttendanceChange = async (studentId, date) => {
-    const dateStr = formatDateForAPI(date);
+    // Ensure we're working with the correct year (2025)
+    const attendanceDate = new Date(date);
+    if (attendanceDate.getFullYear() !== 2025) {
+      attendanceDate.setFullYear(2025);
+    }
+    
+    const dateStr = formatDateForAPI(attendanceDate);
     const today = new Date();
     
     // Set today to 2025 for comparison
@@ -119,7 +129,7 @@ const TeacherAttendance = () => {
     today.setHours(0, 0, 0, 0);
 
     // Date validation
-    if (date > today) {
+    if (attendanceDate > today) {
       console.log('Cannot mark attendance for future dates:', dateStr);
       return;
     }
@@ -127,17 +137,23 @@ const TeacherAttendance = () => {
     // Check if the date is more than 30 days old
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 30);
-    if (date < thirtyDaysAgo) {
+    if (attendanceDate < thirtyDaysAgo) {
       console.log('Cannot mark attendance for dates older than 30 days:', dateStr);
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
+      console.log('Sending attendance update:', {
+        student: studentId,
+        date: dateStr,
+        present: !attendance[studentId]?.[dateStr]
+      });
+
       const response = await axios.post(
         'http://localhost:5000/api/teacher/attendance',
         {
-          studentId,
+          student: studentId,
           date: dateStr,
           present: !attendance[studentId]?.[dateStr]
         },
@@ -155,7 +171,11 @@ const TeacherAttendance = () => {
       console.log('Updated attendance:', response.data.data);
     } catch (err) {
       console.error('Error updating attendance:', err);
-      alert('Failed to update attendance. Please try again.');
+      if (err.response?.data?.message) {
+        alert(err.response.data.message);
+      } else {
+        alert('Failed to update attendance. Please try again.');
+      }
     }
   };
 

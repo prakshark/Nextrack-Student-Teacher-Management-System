@@ -8,6 +8,8 @@ import ComputerIcon from '@mui/icons-material/Computer';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import QuizIcon from '@mui/icons-material/Quiz';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -61,6 +63,18 @@ const TeacherDashboard = () => {
       icon: <TableChartIcon sx={{ fontSize: 40 }} />,
       path: '/teacher/excel-insights',
       color: '#00796b'
+    },
+    {
+      title: 'Upload Result as Excel',
+      icon: <UploadFileIcon sx={{ fontSize: 40 }} />,
+      path: '/teacher/upload-results',
+      color: '#673ab7'
+    },
+    {
+      title: 'View Test Results',
+      icon: <QuizIcon sx={{ fontSize: 40 }} />,
+      path: '/teacher/test-results',
+      color: '#f57c00'
     }
   ];
 

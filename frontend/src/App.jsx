@@ -26,6 +26,9 @@ import AssignmentStatusDetail from './pages/teacher/AssignmentStatusDetail';
 import TeacherPerformanceReport from './pages/teacher/TeacherPerformanceReport';
 import TeacherAttendance from './pages/teacher/TeacherAttendance';
 import ExcelInsights from './pages/teacher/ExcelInsights';
+import TeacherUploadResults from './pages/teacher/TeacherUploadResults';
+import TeacherTestResults from './pages/teacher/TeacherTestResults';
+import TeacherTestResultDetails from './pages/teacher/TeacherTestResultDetails';
 
 const theme = createTheme({
   palette: {
@@ -212,6 +215,30 @@ const App = () => {
               }
             />
             <Route path="/teacher/excel-insights" element={<ExcelInsights />} />
+            <Route
+              path="/teacher/upload-results"
+              element={
+                <PrivateRoute>
+                  <TeacherLayout>
+                    <TeacherUploadResults />
+                  </TeacherLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route path="/teacher/test-results" element={
+              <PrivateRoute>
+                <TeacherLayout>
+                  <TeacherTestResults />
+                </TeacherLayout>
+              </PrivateRoute>
+            } />
+            <Route path="/teacher/test-results/:testId" element={
+              <PrivateRoute>
+                <TeacherLayout>
+                  <TeacherTestResultDetails />
+                </TeacherLayout>
+              </PrivateRoute>
+            } />
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
         </Router>

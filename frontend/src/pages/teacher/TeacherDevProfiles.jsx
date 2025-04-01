@@ -34,25 +34,28 @@ const TeacherDevProfiles = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
 
+        // Get students array from the response
+        const studentsData = response.data.data.students || [];
+
         // Fetch GitHub data for each student
         const studentsWithGithubData = await Promise.all(
-          response.data.data.map(async (student) => {
-            if (student.githubUsername) {
-              try {
-                const githubResponse = await axios.get(`https://api.github.com/users/${student.githubUsername}`);
-                return {
-                  ...student,
-                  githubData: githubResponse.data
-                };
-              } catch (err) {
-                console.error(`Error fetching GitHub data for ${student.name}:`, err);
-                return {
-                  ...student,
-                  githubData: null
-                };
-              }
+          studentsData.map(async (student) => {
+            if (!student || !student.githubUsername) {
+              return student;
             }
-            return student;
+            try {
+              const githubResponse = await axios.get(`https://api.github.com/users/${student.githubUsername}`);
+              return {
+                ...student,
+                githubData: githubResponse.data
+              };
+            } catch (err) {
+              console.error(`Error fetching GitHub data for ${student.name}:`, err);
+              return {
+                ...student,
+                githubData: null
+              };
+            }
           })
         );
 
@@ -69,12 +72,13 @@ const TeacherDevProfiles = () => {
   }, []);
 
   const filteredStudents = students.filter(student => {
+    if (!student) return false;
     const searchLower = searchQuery.toLowerCase();
     return (
-      student.name.toLowerCase().includes(searchLower) ||
-      student.email.toLowerCase().includes(searchLower) ||
-      (student.githubUsername && student.githubUsername.toLowerCase().includes(searchLower)) ||
-      (student.linkedinProfileUrl && student.linkedinProfileUrl.toLowerCase().includes(searchLower))
+      (student.name?.toLowerCase() || '').includes(searchLower) ||
+      (student.email?.toLowerCase() || '').includes(searchLower) ||
+      (student.githubUsername?.toLowerCase() || '').includes(searchLower) ||
+      (student.linkedinProfileUrl?.toLowerCase() || '').includes(searchLower)
     );
   });
 
